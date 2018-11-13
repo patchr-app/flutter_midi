@@ -25,7 +25,8 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     var devices;
     try {
-      devices = await new Midi().listDevices();
+      Midi m = new Midi();
+      devices = await m.listDevices();
       for (final DeviceInfo dev in devices) {
         print('ID:               ${dev.id}');
         print('Name:             ${dev.name}');
@@ -42,6 +43,10 @@ class _MyAppState extends State<MyApp> {
           print('  Name:   ${p.name}');
         }
       }
+
+      print('Attempting to connect');
+      await m.openDevice(devices[0]);
+      print('Connected!');
     } on PlatformException {
       print("exception");
       devices = [];

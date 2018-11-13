@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.midi.*;
 import android.os.Bundle;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -20,6 +21,10 @@ public class MidiPlugin implements MethodCallHandler {
 
   private MidiManager midi;
 
+  private HashMap<Integer, MidiDeviceInfo> deviceInfo = new HashMap();
+
+  private HashMap<Integer, MidiDevice> activeDevices = new HashMap();
+
   /** Plugin registration. */
   public static void registerWith(Registrar registrar) {
     final String channelName = "com.synthfeeder/midi";
@@ -33,15 +38,35 @@ public class MidiPlugin implements MethodCallHandler {
   public void onMethodCall(MethodCall call, Result result) {
     if (call.method.equals("listDevices")) {
       result.success(this.listDevices());
-    } else {
+    } else if (call.method.equals("openDevice")) {
+      final int id = (Integer) call.arguments;
+      final Result r = result;
+      this.midi.openDevice(this.deviceInfo.get(id), new MidiManager.OnDeviceOpenedListener() {
+        public void onDeviceOpened(MidiDevice dev) {
+          activeDevices.put(id, dev);
+          r.success(id);
+        }
+      }, null);
+    } else if (call.method.equals("closeDevice")) {
+      try {
+        this.activeDevices.get(call.arguments).close();
+        result.success(call.arguments);
+      } catch (IOException e) {
+        result.error(e.getClass().getName(), e.toString(), null);
+      }
+    }
+
+    else {
       result.notImplemented();
     }
   }
 
   private List listDevices() {
     MidiDeviceInfo[] devices = this.midi.getDevices();
+    this.deviceInfo.clear();
     ArrayList<Map> list = new ArrayList();
     for (MidiDeviceInfo dev : devices) {
+      this.deviceInfo.put(dev.getId(), dev);
       MidiDeviceInfo.PortInfo[] ports = dev.getPorts();
       ArrayList<Map> portMap = new ArrayList();
       for (MidiDeviceInfo.PortInfo port : ports) {
