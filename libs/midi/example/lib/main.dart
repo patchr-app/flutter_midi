@@ -1,0 +1,77 @@
+import 'package:flutter/material.dart';
+import 'dart:async';
+
+import 'package:flutter/services.dart';
+import 'package:midi/midi.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  List<DeviceInfo> _devices = [];
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initPlatformState() async {
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    var devices;
+    try {
+      devices = await new Midi().listDevices();
+      for (final DeviceInfo dev in devices) {
+        print('ID:               ${dev.id}');
+        print('Name:             ${dev.name}');
+        print('Manufacturer:     ${dev.manufacturer}');
+        print('Type:             ${dev.type}');
+        print('Product:          ${dev.product}');
+        print('Serial:           ${dev.serialNumber}');
+        print('Version:          ${dev.version}');
+        print('Num Input Ports:  ${dev.inputPortCount}');
+        print('Num Output Ports: ${dev.outputPortCount}');
+        for (final PortInfo p in dev.ports) {
+          print("${p.type} Port:");
+          print('  Number: ${p.number}');
+          print('  Name:   ${p.name}');
+        }
+      }
+    } on PlatformException {
+      print("exception");
+      devices = [];
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _devices = devices;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+          appBar: AppBar(
+            title: const Text('Plugin example app'),
+          ),
+          body: ListView(
+              children: _devices
+                  .map((DeviceInfo d) => Card(
+                          child: ListTile(
+                        title: Text(d.name),
+                        subtitle: Text(d.manufacturer),
+                      )))
+                  .toList())),
+    );
+  }
+}
