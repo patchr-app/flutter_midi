@@ -44,9 +44,28 @@ class _MyAppState extends State<MyApp> {
         }
       }
 
-      print('Attempting to connect');
-      await m.openDevice(devices[0]);
-      print('Connected!');
+      m.onDevicesChanged.forEach((event) {
+        print(event.type);
+        var dev = event.device;
+        print('ID:               ${dev.id}');
+        print('Name:             ${dev.name}');
+        print('Manufacturer:     ${dev.manufacturer}');
+        print('Type:             ${dev.type}');
+        print('Product:          ${dev.product}');
+        print('Serial:           ${dev.serialNumber}');
+        print('Version:          ${dev.version}');
+        print('Num Input Ports:  ${dev.inputPortCount}');
+        print('Num Output Ports: ${dev.outputPortCount}');
+        for (final PortInfo p in dev.ports) {
+          print("${p.type} Port:");
+          print('  Number: ${p.number}');
+          print('  Name:   ${p.name}');
+        }
+      });
+
+      //print('Attempting to connect');
+      //await m.openDevice(devices[0]);
+      //print('Connected!');
     } on PlatformException {
       print("exception");
       devices = [];

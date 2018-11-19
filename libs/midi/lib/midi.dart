@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 
 /// Method channel used for all midi related stuff
 const MethodChannel _channel = const MethodChannel('com.synthfeeder/midi');
+const EventChannel _deviceEventchannel =
+    const EventChannel('com.synthfeeder/midi/devices');
 
 enum PortType { input, output }
 
@@ -18,6 +20,10 @@ class PortInfo {
     this.name = props['name'];
     this.number = props['number'];
     this.type = props['type'] == 'INPUT' ? PortType.input : PortType.output;
+  }
+
+  toJson() {
+    return {'name': name, 'number': number, 'type': type};
   }
 }
 
@@ -46,6 +52,21 @@ class DeviceInfo {
     this.version = props['version'];
     this.ports = (props['ports'] as List).map((p) => new PortInfo(p)).toList();
   }
+
+  toJson() {
+    return {
+      'id': id,
+      'inputPortCount': inputPortCount,
+      'outputPortCount': outputPortCount,
+      'type': type,
+      'manufacturer': manufacturer,
+      'name': name,
+      'product': product,
+      'serialNumber': serialNumber,
+      'version': version,
+      'ports': ports,
+    };
+  }
 }
 
 class MidiOutputPort {
@@ -73,6 +94,20 @@ class MidiDevice {
   }
 }
 
+enum MidiDeviceChangeType { Added, Removed }
+
+class MidiDeviceChange {
+  MidiDeviceChangeType type;
+  DeviceInfo device;
+
+  MidiDeviceChange(Map props) {
+    type = props['type'] == 'DEVICE_ADDED'
+        ? MidiDeviceChangeType.Added
+        : MidiDeviceChangeType.Removed;
+    device = new DeviceInfo(props['device']);
+  }
+}
+
 class Midi {
   /// Gets the list of midi devices present on the system
   Future<List<DeviceInfo>> listDevices() async {
@@ -80,6 +115,12 @@ class Midi {
     return result.map((res) {
       return new DeviceInfo(res);
     }).toList();
+  }
+
+  Stream<MidiDeviceChange> get onDevicesChanged {
+    return _deviceEventchannel
+        .receiveBroadcastStream()
+        .map((dynamic event) => new MidiDeviceChange(event));
   }
 
   Future<MidiDevice> openDevice(DeviceInfo d) async {
