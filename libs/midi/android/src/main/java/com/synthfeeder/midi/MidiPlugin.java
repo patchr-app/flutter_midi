@@ -2,7 +2,6 @@ package com.synthfeeder.midi;
 
 import android.content.Context;
 import android.media.midi.*;
-import android.os.Bundle;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,29 +19,38 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 /** MidiPlugin */
 public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler {
 
-  private MidiManager midi;
+  public static final String METHOD_CHANNEL_NAME = "com.synthfeeder/midi";
+  public static final String DEVICE_CHANNEL_NAME = "com.synthfeeder/midi/devices";
+  public static final String MESSAGE_CHANNEL_NAME = "com.synthfeeder/midi/messages";
+  MidiManager midi;
 
-  private EventChannel deviceEventChannel;
+  MethodChannel methodChannel;
+  EventChannel deviceEventChannel;
+  EventChannel midiDataChannel;
 
-  private HashMap<Integer, MidiDeviceInfo> deviceInfo = new HashMap();
+  HashMap<Integer, MidiDeviceInfo> deviceInfo = new HashMap();
 
-  private HashMap<Integer, MidiDevice> activeDevices = new HashMap();
+  HashMap<Integer, MidiDevice> activeDevices = new HashMap();
 
   MidiManager.DeviceCallback deviceCallback;
 
   /** Plugin registration. */
   public static void registerWith(Registrar registrar) {
-    final String channelName = "com.synthfeeder/midi";
-    final String deviceChannelName = "com.synthfeeder/midi/devices";
 
-    final MethodChannel channel = new MethodChannel(registrar.messenger(), channelName);
-    final MidiPlugin plugin = new MidiPlugin();
-    plugin.midi = (MidiManager) registrar.context().getSystemService(Context.MIDI_SERVICE);
-    channel.setMethodCallHandler(plugin);
+    final MethodChannel methodChannel = new MethodChannel(registrar.messenger(), METHOD_CHANNEL_NAME);
+    final EventChannel deviceEventChannel = new EventChannel(registrar.messenger(), DEVICE_CHANNEL_NAME);
+    final EventChannel messageEventChannel = new EventChannel(registrar.messenger(), MESSAGE_CHANNEL_NAME);
+    MidiManager midi = (MidiManager) registrar.context().getSystemService(Context.MIDI_SERVICE);
+    final MidiPlugin plugin = new MidiPlugin(midi, methodChannel, deviceEventChannel, messageEventChannel);
+  }
 
-    final EventChannel deviceEventChannel = new EventChannel(registrar.messenger(), deviceChannelName);
-    deviceEventChannel.setStreamHandler(plugin);
-
+  MidiPlugin(MidiManager midi, MethodChannel methodChannel, EventChannel deviceChannel, EventChannel messageChannel) {
+    this.midi = midi;
+    this.methodChannel = methodChannel;
+    methodChannel.setMethodCallHandler(this);
+    this.deviceEventChannel = deviceChannel;
+    deviceEventChannel.setStreamHandler(this);
+    this.midiDataChannel = messageChannel;
   }
 
   @Override
@@ -77,61 +85,11 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     this.deviceInfo.clear();
     ArrayList<Map> list = new ArrayList();
     for (MidiDeviceInfo dev : devices) {
-      list.add(this.readDevice(dev));
+      list.add(DeviceInfoMapper.readDevice(dev));
     }
     return list;
   }
 
-  private Map readDevice(MidiDeviceInfo dev) {
-    MidiDeviceInfo.PortInfo[] ports = dev.getPorts();
-    ArrayList<Map> portMap = new ArrayList();
-    for (MidiDeviceInfo.PortInfo port : ports) {
-      portMap.add(this.mapPortInfo(port));
-    }
-    Map deviceInfo = this.mapDeviceInfo(dev);
-    deviceInfo.put("ports", portMap);
-    return deviceInfo;
-  }
-
-  private Map mapPortInfo(MidiDeviceInfo.PortInfo p) {
-    HashMap map = new HashMap();
-    map.put("name", p.getName());
-    map.put("number", p.getPortNumber());
-    switch (p.getType()) {
-    case MidiDeviceInfo.PortInfo.TYPE_INPUT:
-      map.put("type", "INPUT");
-      break;
-    case MidiDeviceInfo.PortInfo.TYPE_OUTPUT:
-      map.put("type", "OUTPUT");
-      break;
-    }
-    return map;
-  }
-
-  private Map mapDeviceInfo(MidiDeviceInfo i) {
-    Bundle properties = i.getProperties();
-    HashMap map = new HashMap();
-    map.put("id", i.getId());
-    map.put("inputPortCount", i.getInputPortCount());
-    map.put("outputPortCount", i.getOutputPortCount());
-    switch (i.getType()) {
-    case MidiDeviceInfo.TYPE_USB:
-      map.put("type", "USB");
-      break;
-    case MidiDeviceInfo.TYPE_BLUETOOTH:
-      map.put("type", "BLUETOOTH");
-      break;
-    case MidiDeviceInfo.TYPE_VIRTUAL:
-      map.put("type", "VIRTUAL");
-      break;
-    }
-    map.put("manufacturer", properties.getString(MidiDeviceInfo.PROPERTY_MANUFACTURER));
-    map.put("name", properties.getString(MidiDeviceInfo.PROPERTY_NAME));
-    map.put("product", properties.getString(MidiDeviceInfo.PROPERTY_PRODUCT));
-    map.put("serialNumber", properties.getString(MidiDeviceInfo.PROPERTY_SERIAL_NUMBER));
-    map.put("version", properties.getString(MidiDeviceInfo.PROPERTY_VERSION));
-    return map;
-  }
 
   @Override
   public void onListen(Object o, final EventChannel.EventSink eventSink) {
@@ -140,7 +98,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
       public void onDeviceAdded(MidiDeviceInfo device) {
         HashMap event = new HashMap();
         event.put("type", "DEVICE_ADDED");
-        event.put("device", readDevice(device));
+        event.put("device", DeviceInfoMapper.readDevice(device));
         eventSink.success(event);
       }
 
@@ -148,7 +106,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
       public void onDeviceRemoved(MidiDeviceInfo device) {
         HashMap event = new HashMap();
         event.put("type", "DEVICE_REMOVED");
-        event.put("device", readDevice(device));
+        event.put("device", DeviceInfoMapper.readDevice(device));
         eventSink.success(event);
       }
     };
