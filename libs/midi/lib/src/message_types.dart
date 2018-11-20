@@ -1,5 +1,21 @@
 part of midi;
 
+const CLOCK_MESSAGE = 0xf8;
+const NOTE_OFF = 0x80;
+const NOTE_ON = 0x90;
+const KEY_PRESSURE = 0xA0;
+const CONTROL_CHANGE = 0xB0;
+const PROGRAM_CHANGE = 0xC0;
+const CHANNEL_PRESSURE = 0xD0;
+const PITCH_BEND = 0xE0;
+
+const SYS_EX_START = 0xF0;
+const TIME = 0xF1;
+const SONG_POSITION = 0xF2;
+const SONG_SELECT = 0xF3;
+const TUNE_REQUEST = 0xF6;
+const SYS_EX_END = 0xF7;
+
 /// Midi message types
 enum MidiMessageType {
   NOTE_OFF,
@@ -23,5 +39,6 @@ enum MidiMessageType {
   CONTINUE,
   STOP,
   PING,
-  RESET
+  RESET,
+  UNKNOWN_MESSAGE
 }

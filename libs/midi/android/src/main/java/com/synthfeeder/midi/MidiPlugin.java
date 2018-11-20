@@ -2,6 +2,7 @@ package com.synthfeeder.midi;
 
 import android.content.Context;
 import android.media.midi.*;
+import android.util.SparseArray;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +33,13 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
 
   HashMap<Integer, MidiDevice> activeDevices = new HashMap();
 
+  SparseArray<MidiOutputPort> activeOutputPorts = new SparseArray<>();
+  int nextOutputPortIndex = 0;
+
   MidiManager.DeviceCallback deviceCallback;
+
+  boolean sendMidiData = false;
+  EventChannel.EventSink midiDataSink;
 
   /** Plugin registration. */
   public static void registerWith(Registrar registrar) {
@@ -42,6 +49,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     final EventChannel messageEventChannel = new EventChannel(registrar.messenger(), MESSAGE_CHANNEL_NAME);
     MidiManager midi = (MidiManager) registrar.context().getSystemService(Context.MIDI_SERVICE);
     final MidiPlugin plugin = new MidiPlugin(midi, methodChannel, deviceEventChannel, messageEventChannel);
+
   }
 
   MidiPlugin(MidiManager midi, MethodChannel methodChannel, EventChannel deviceChannel, EventChannel messageChannel) {
@@ -51,6 +59,18 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     this.deviceEventChannel = deviceChannel;
     deviceEventChannel.setStreamHandler(this);
     this.midiDataChannel = messageChannel;
+    this.midiDataChannel.setStreamHandler(new EventChannel.StreamHandler() {
+      @Override
+      public void onListen(Object o, EventChannel.EventSink eventSink) {
+        midiDataSink = eventSink;
+        sendMidiData = true;
+      }
+
+      @Override
+      public void onCancel(Object o) {
+        sendMidiData = false;
+      }
+    });
   }
 
   @Override
@@ -74,17 +94,47 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
         result.error(e.getClass().getName(), e.toString(), null);
       }
     }
+    else if (call.method.equals("openOutputPort")) {
+      int deviceId = (Integer) ((Map)call.arguments).get("deviceId");
+      int portNumber = (Integer) ((Map)call.arguments).get("port");
+      MidiOutputPort port = this.activeDevices.get(deviceId).openOutputPort(portNumber);
+      activeOutputPorts.append(nextOutputPortIndex, port);
+      result.success(nextOutputPortIndex);
+      port.connect(new FlutterMidiReceiver(nextOutputPortIndex) {
+        @Override
+        public void onSend(byte[] message, int offset, int count, long timestamp) throws IOException {
+          if (sendMidiData && midiDataSink != null) {
+            byte[] trimmed = new byte[count];
+            System.arraycopy(message, offset, trimmed, 0, count);
+            HashMap toReturn = new HashMap();
+            toReturn.put("port", this.portId);
+            toReturn.put("data", trimmed);
+            midiDataSink.success(toReturn);
+          }
+        }
+      });
+      nextOutputPortIndex++;
+    }
 
     else {
       result.notImplemented();
     }
   }
 
+  abstract class FlutterMidiReceiver extends MidiReceiver {
+    int portId;
+    FlutterMidiReceiver(int portId) {
+      this.portId = portId;
+    }
+  }
+
+
   private List listDevices() {
     MidiDeviceInfo[] devices = this.midi.getDevices();
     this.deviceInfo.clear();
     ArrayList<Map> list = new ArrayList();
     for (MidiDeviceInfo dev : devices) {
+      this.deviceInfo.put(dev.getId(), dev);
       list.add(DeviceInfoMapper.readDevice(dev));
     }
     return list;
