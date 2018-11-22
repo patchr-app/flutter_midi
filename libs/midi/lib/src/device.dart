@@ -8,12 +8,16 @@ class MidiDevice {
     this._open = true;
   }
 
-  openInputPort(int port) {}
-
   Future<MidiOutputPort> openOutputPort(int port) async {
     int portId = await _channel
         .invokeMethod('openOutputPort', {'deviceId': this._id, 'port': port});
     return MidiOutputPort(this, port, portId);
+  }
+
+  Future<MidiInputPort> openInputPort(int port) async {
+    int portId = await _channel
+        .invokeMethod('openInputPort', {'deviceId': this._id, 'port': port});
+    return MidiInputPort(this, port, portId);
   }
 
   close() async {

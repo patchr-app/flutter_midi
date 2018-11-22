@@ -36,6 +36,9 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
   SparseArray<MidiOutputPort> activeOutputPorts = new SparseArray<>();
   int nextOutputPortIndex = 0;
 
+  SparseArray<MidiInputPort> activeInputPorts = new SparseArray<>();
+  int nextInputPortIndex = 0;
+
   MidiManager.DeviceCallback deviceCallback;
 
   boolean sendMidiData = false;
@@ -115,7 +118,25 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
       });
       nextOutputPortIndex++;
     }
-
+    else if (call.method.equals("openInputPort")) {
+      int deviceId = (Integer) ((Map)call.arguments).get("deviceId");
+      int portNumber = (Integer) ((Map)call.arguments).get("port");
+      MidiInputPort port = this.activeDevices.get(deviceId).openInputPort(portNumber);
+      activeInputPorts.append(nextInputPortIndex, port);
+      result.success(nextInputPortIndex);
+    }
+    else if (call.method.equals("send")) {
+      int portNumber = (Integer) ((Map)call.arguments).get("port");
+      byte[] data = (byte[]) ((Map)call.arguments).get("data");
+      MidiInputPort port = this.activeInputPorts.get(portNumber);
+      try {
+        port.send(data, 0, data.length);
+        result.success(null);
+      }
+      catch(IOException e) {
+        result.error(e.toString(), e.getMessage(), e.getMessage());
+      }
+    }
     else {
       result.notImplemented();
     }

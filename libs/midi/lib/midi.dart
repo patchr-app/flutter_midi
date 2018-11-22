@@ -7,9 +7,11 @@ import 'package:flutter/services.dart';
 part './src/device.dart';
 part './src/device_change_event.dart';
 part './src/device_info.dart';
+part './src/input_port.dart';
 part './src/output_port.dart';
 part './src/port_info.dart';
 part './src/message_filters.dart';
+part './src/message_splitter.dart';
 part './src/message_types.dart';
 
 /// Method channel used for all midi related stuff

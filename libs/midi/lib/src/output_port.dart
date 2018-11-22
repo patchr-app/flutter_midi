@@ -11,8 +11,7 @@ class MidiOutputPort {
   }
 
   Future<void> close() {
-    return _channel.invokeMethod(
-        'closeOutputPort', {'deviceId': parent._id, 'port': this.portNumber});
+    return _channel.invokeMethod('closeOutputPort', this._identifier);
   }
 
   Stream<Uint8List> get messages {
