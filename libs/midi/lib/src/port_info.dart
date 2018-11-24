@@ -16,6 +16,6 @@ class PortInfo {
   }
 
   toJson() {
-    return {'name': name, 'number': number, 'type': type};
+    return {'name': name, 'number': number, 'type': type.toString()};
   }
 }
