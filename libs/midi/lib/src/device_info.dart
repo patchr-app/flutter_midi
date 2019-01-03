@@ -23,7 +23,12 @@ class DeviceInfo {
     this.product = props['product'];
     this.serialNumber = props['serialNumber'];
     this.version = props['version'];
-    this.ports = (props['ports'] as List).map((p) => new PortInfo(p)).toList();
+    if (props['ports'] != null) {
+      this.ports =
+          (props['ports'] as List).map((p) => new PortInfo(p)).toList();
+    } else {
+      ports = [];
+    }
   }
 
   toJson() {

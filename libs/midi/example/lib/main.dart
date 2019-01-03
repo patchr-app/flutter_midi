@@ -26,7 +26,9 @@ class _MyAppState extends State<MyApp> {
     var devices;
     try {
       Midi m = new Midi();
+      print('Looking for devices');
       devices = await m.listDevices();
+      print('Found ${devices.length} devices');
       for (final DeviceInfo dev in devices) {
         print('ID:               ${dev.id}');
         print('Name:             ${dev.name}');
@@ -43,17 +45,18 @@ class _MyAppState extends State<MyApp> {
           print('  Name:   ${p.name}');
         }
       }
+      if (devices.length > 0) {
+        //print('Attempting to connect');
+        //var device = await m.openDevice(devices[0]);
+        //print('Connected!');
 
-      print('Attempting to connect');
-      var device = await m.openDevice(devices[0]);
-      print('Connected!');
+        //print('opening output port 0');
+        //var port = await device.openOutputPort(1);
+        //port = await device.openOutputPort(0);
 
-      print('opening output port 0');
-      var port = await device.openOutputPort(1);
-      port = await device.openOutputPort(0);
-
-      print('listening to messages');
-      port.messages.where(excludeClock).forEach((data) => print(data));
+        //print('listening to messages');
+        //port.messages.where(excludeClock).forEach((data) => print(data));
+      }
     } on PlatformException {
       print("exception");
       devices = [];
@@ -76,14 +79,18 @@ class _MyAppState extends State<MyApp> {
           appBar: AppBar(
             title: const Text('Plugin example app'),
           ),
-          body: ListView(
-              children: _devices
-                  .map((DeviceInfo d) => Card(
-                          child: ListTile(
-                        title: Text(d.name),
-                        subtitle: Text(d.manufacturer),
-                      )))
-                  .toList())),
+          body: (_devices.length > 0)
+              ? ListView(
+                  children: _devices
+                      .map((DeviceInfo d) => Card(
+                              child: ListTile(
+                            title: Text(d.name),
+                            subtitle: Text(d.manufacturer),
+                          )))
+                      .toList())
+              : Center(
+                  child: Text('No devices'),
+                )),
     );
   }
 }
