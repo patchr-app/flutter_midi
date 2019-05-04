@@ -39,7 +39,7 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
 
       var isOffline: Int32 = 0
       MIDIObjectGetIntegerProperty(device, kMIDIPropertyOffline, &isOffline)
-      if isOffline > 0 || true {
+      if isOffline > 0 {
         print("Device is online")
         var props: Dictionary<String, Any> = [:]
         
@@ -49,6 +49,8 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
         
         for entityId in 0 ..< itemCount {
           let entity = MIDIDeviceGetEntity(device, entityId)
+          
+          let sourceCount = MIDIEntityGetNumberOfSources(entity);
           /// XXX TODO ETC
         }
         

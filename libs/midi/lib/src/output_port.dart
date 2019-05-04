@@ -17,7 +17,7 @@ class MidiOutputPort {
   Stream<Uint8List> get messages {
     return _midiMessagechannel
         .receiveBroadcastStream()
-        //.where((data) => data['port'] == this._identifier)
+        .where((data) => data['port'] == this._identifier)
         .map((data) => data['data'] as Uint8List)
         .transform(MessageSplitter());
   }

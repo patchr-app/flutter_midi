@@ -36,6 +36,23 @@ class Midi {
         .map((dynamic event) => new MidiDeviceChangeEvent(event));
   }
 
+  /**
+   * A stream that emits the current list of devices, whenever
+   * something changes
+   */
+  Stream<List<DeviceInfo>> devices() async* {
+    List<DeviceInfo> state = await this.listDevices();
+    yield state;
+    await for (MidiDeviceChangeEvent event in this.onDevicesChanged) {
+      if (event.type == MidiDeviceChangeType.Added) {
+        state.add(event.device);
+      } else {
+        state.removeWhere((item) => item.id == event.device.id);
+      }
+      yield state;
+    }
+  }
+
   Future<MidiDevice> openDevice(DeviceInfo d) async {
     var result = await _channel.invokeMethod('openDevice', d.id);
     return MidiDevice(result);
