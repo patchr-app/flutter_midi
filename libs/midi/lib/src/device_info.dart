@@ -25,7 +25,7 @@ class DeviceInfo {
     this.version = props['version'];
     if (props['ports'] != null) {
       this.ports =
-          (props['ports'] as List).map((p) => new PortInfo(p)).toList();
+          (props['ports'] as List).map((p) => new PortInfo(this, p)).toList();
     } else {
       ports = [];
     }

@@ -53,6 +53,44 @@ class Midi {
     }
   }
 
+  Stream<List<PortInfo>> inputs() async* {
+    await for (List<DeviceInfo> devices in this.devices()) {
+      List<PortInfo> inputs = [];
+      for (DeviceInfo device in devices) {
+        for (PortInfo port in device.ports) {
+          if (port.type == PortType.input) {
+            inputs.add(port);
+          }
+        }
+      }
+      yield inputs;
+    }
+  }
+
+  Stream<List<PortInfo>> outputs() async* {
+    await for (List<DeviceInfo> devices in this.devices()) {
+      List<PortInfo> outputs = [];
+      for (DeviceInfo device in devices) {
+        for (PortInfo port in device.ports) {
+          if (port.type == PortType.output) {
+            outputs.add(port);
+          }
+        }
+      }
+      yield outputs;
+    }
+  }
+
+  Future<MidiInputPort> openInput(PortInfo p) async {
+    MidiDevice d = await this.openDevice(p.parent);
+    return await d.openInputPort(p);
+  }
+
+  Future<MidiOutputPort> openOutput(PortInfo p) async {
+    MidiDevice d = await this.openDevice(p.parent);
+    return await d.openOutputPort(p);
+  }
+
   Future<MidiDevice> openDevice(DeviceInfo d) async {
     var result = await _channel.invokeMethod('openDevice', d.id);
     return MidiDevice(result);

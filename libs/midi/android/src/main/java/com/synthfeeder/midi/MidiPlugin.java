@@ -83,12 +83,17 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     } else if (call.method.equals("openDevice")) {
       final int id = (Integer) call.arguments;
       final Result r = result;
-      this.midi.openDevice(this.deviceInfo.get(id), new MidiManager.OnDeviceOpenedListener() {
-        public void onDeviceOpened(MidiDevice dev) {
-          activeDevices.put(id, dev);
-          r.success(id);
-        }
-      }, null);
+      if (activeDevices.containsKey(id)) {
+        r.success(id);
+      }
+      else {
+        this.midi.openDevice(this.deviceInfo.get(id), new MidiManager.OnDeviceOpenedListener() {
+          public void onDeviceOpened(MidiDevice dev) {
+            activeDevices.put(id, dev);
+            r.success(id);
+          }
+        }, null);
+      }
     } else if (call.method.equals("closeDevice")) {
       try {
         this.activeDevices.get(call.arguments).close();

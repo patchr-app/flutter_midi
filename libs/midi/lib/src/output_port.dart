@@ -2,10 +2,11 @@ part of midi;
 
 class MidiOutputPort {
   MidiDevice parent;
+  PortInfo info;
   int portNumber;
   int _identifier;
 
-  MidiOutputPort(this.parent, this.portNumber, this._identifier) {
+  MidiOutputPort(this.parent, this.portNumber, this._identifier, {this.info}) {
     print('  Unique ID: ${this._identifier}');
     print('  Port:      ${this.portNumber}');
   }
