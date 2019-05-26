@@ -83,6 +83,8 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
       this.getInputs(call, result);
     } else if (call.method.equals(Constants.GET_OUTPUTS)) {
       this.getOutputs(call, result);
+    } else if (call.method.equals(Constants.OPEN_INPUT)) {
+      this.openInput(call, result);
     } else if (call.method.equals(Constants.OPEN_OUTPUT)) {
       this.openOutput(call, result);
     } else if (call.method.equals(Constants.CLOSE_INPUT)) {
@@ -122,6 +124,32 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
       }
     }
     result.success(portList);
+  }
+
+  private void openInput(MethodCall call, final Result result) {
+    final String id = (String) call.arguments;
+    final int deviceId = this.getDeviceId(id);
+    final int portId = this.getPortId(id);
+    // already connected, do nothing
+    if (activeInputs.containsKey(id)) {
+      result.success(id);
+    } else {
+      if (activeDevices.containsKey(deviceId)) {
+        MidiInputPort p = activeDevices.get(deviceId).openInputPort(portId);
+        this.activeInputs.put(id, p);
+        result.success(id);
+      } else {
+        this.midi.openDevice(this.connectedDevices.get(deviceId), new MidiManager.OnDeviceOpenedListener() {
+          @Override
+          public void onDeviceOpened(MidiDevice device) {
+            activeDevices.put(deviceId, device);
+            MidiInputPort p = device.openInputPort(portId);
+            activeInputs.put(id, p);
+            result.success(id);
+          }
+        }, null);
+      }
+    }
   }
 
   private void openOutput(MethodCall call, final Result result) {
@@ -226,7 +254,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
   }
 
   private int getDeviceId(String id) {
-    return Integer.parseInt(id.substring(2, id.indexOf(':',2)));
+    return Integer.parseInt(id.substring(2, id.indexOf(':', 2)));
   }
 
   private int getPortId(String id) {
@@ -238,19 +266,18 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
    *
    * Prefixed with i for input, o for output.
    *
-   * Eg:
-   *   i:12:0
+   * Eg: i:12:0
    *
-   *   for Input 0 of Device 12
+   * for Input 0 of Device 12
    *
    * @param d
    * @param p
    * @return
    */
   private String buildId(MidiDeviceInfo d, MidiDeviceInfo.PortInfo p) {
-    return (p.getType() == MidiDeviceInfo.PortInfo.TYPE_INPUT ? Constants.INPUT : Constants.OUTPUT) + ":" + d.getId() + ":" + p.getPortNumber();
+    return (p.getType() == MidiDeviceInfo.PortInfo.TYPE_INPUT ? Constants.INPUT : Constants.OUTPUT) + ":" + d.getId()
+        + ":" + p.getPortNumber();
   }
-
 
   Map<String, ?> buildPortInfoMap(MidiDeviceInfo d, MidiDeviceInfo.PortInfo p) {
     HashMap m = new HashMap();
@@ -259,7 +286,8 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     m.put(Constants.MANUFACTURER, deviceProps.getString(MidiDeviceInfo.PROPERTY_MANUFACTURER));
     m.put(Constants.VERSION, deviceProps.getString(MidiDeviceInfo.PROPERTY_VERSION));
     m.put(Constants.NUMBER, p.getPortNumber());
-    m.put(Constants.NAME, p.getName().length() > 0 ? p.getName() : deviceProps.getString(MidiDeviceInfo.PROPERTY_PRODUCT) + " " + p.getPortNumber());
+    m.put(Constants.NAME, p.getName().length() > 0 ? p.getName()
+        : deviceProps.getString(MidiDeviceInfo.PROPERTY_PRODUCT) + " " + p.getPortNumber());
 
     return m;
   }
@@ -271,7 +299,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
       public void onDeviceAdded(MidiDeviceInfo device) {
         HashMap event = new HashMap();
         event.put("type", "DEVICE_ADDED");
-        //event.put("device", DeviceInfoMapper.readDevice(device));
+        // event.put("device", DeviceInfoMapper.readDevice(device));
         eventSink.success(event);
       }
 
@@ -279,7 +307,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
       public void onDeviceRemoved(MidiDeviceInfo device) {
         HashMap event = new HashMap();
         event.put("type", "DEVICE_REMOVED");
-        //event.put("device", DeviceInfoMapper.readDevice(device));
+        // event.put("device", DeviceInfoMapper.readDevice(device));
         eventSink.success(event);
       }
     };
