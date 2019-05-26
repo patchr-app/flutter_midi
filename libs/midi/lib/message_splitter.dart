@@ -2,19 +2,20 @@ part of midi;
 
 /// Converts a stream of raw midi data into discreet midi messages
 class MessageSplitter extends StreamTransformerBase<Uint8List, Uint8List> {
+  @override
   Stream<Uint8List> bind(Stream<Uint8List> stream) async* {
-    List<int> buffer = [];
+    List<int> buffer = <int>[];
     int bytesRemaining = 0;
     bool sysExInProgress = false;
-    await for (var chunk in stream) {
+    await for (Uint8List chunk in stream) {
       int i = 0;
       if (sysExInProgress) {
         // look for the end byte
-        var endIndex = chunk.indexOf(SYS_EX_END);
+        final int endIndex = chunk.indexOf(SYS_EX_END);
         if (endIndex > i) {
           buffer.addAll(chunk.sublist(0, endIndex + 1));
-          yield (Uint8List.fromList(buffer));
-          buffer = [];
+          yield Uint8List.fromList(buffer);
+          buffer = <int>[];
           i = endIndex + 1;
           sysExInProgress = false;
         } else {
@@ -55,7 +56,7 @@ class MessageSplitter extends StreamTransformerBase<Uint8List, Uint8List> {
           i += 1;
         } else if (chunk[i] == SYS_EX_START) {
           // can we emit the entire message at once?
-          var endIndex = chunk.sublist(i).indexOf(SYS_EX_END);
+          final int endIndex = chunk.sublist(i).indexOf(SYS_EX_END);
           if (endIndex > i) {
             yield chunk.sublist(i, endIndex + 1);
             i = endIndex + 1;

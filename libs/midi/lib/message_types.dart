@@ -1,0 +1,44 @@
+part of midi;
+
+const int CLOCK_MESSAGE = 0xf8;
+const int NOTE_OFF = 0x80;
+const int NOTE_ON = 0x90;
+const int KEY_PRESSURE = 0xA0;
+const int CONTROL_CHANGE = 0xB0;
+const int PROGRAM_CHANGE = 0xC0;
+const int CHANNEL_PRESSURE = 0xD0;
+const int PITCH_BEND = 0xE0;
+
+const int SYS_EX_START = 0xF0;
+const int TIME = 0xF1;
+const int SONG_POSITION = 0xF2;
+const int SONG_SELECT = 0xF3;
+const int TUNE_REQUEST = 0xF6;
+const int SYS_EX_END = 0xF7;
+
+/// Midi message types
+enum MidiMessageType {
+  NOTE_OFF,
+  NOTE_ON,
+  POLYPHONIC_AFTERTOUCH,
+  CONTROL_CHANGE,
+  PROGRAM_CHANGE,
+  CHANNEL_PRESSURE,
+  PITCH_BEND,
+  SOUND_OFF,
+  RESET_CONTROLLERS,
+  LOCAL_CONTROL,
+  ALL_NOTES_OFF,
+  SYSTEM_EXCLUSIVE,
+  TIME,
+  SONG_POSITION,
+  SONG_SELECT,
+  TUNE_REQUEST,
+  CLOCK,
+  START,
+  CONTINUE,
+  STOP,
+  PING,
+  RESET,
+  UNKNOWN_MESSAGE
+}

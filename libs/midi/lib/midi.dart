@@ -2,97 +2,58 @@ library midi;
 
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-part './src/device.dart';
-part './src/device_change_event.dart';
-part './src/device_info.dart';
-part './src/input_port.dart';
-part './src/output_port.dart';
-part './src/port_info.dart';
-part './src/message_filters.dart';
-part './src/message_splitter.dart';
-part './src/message_types.dart';
+part './connection_event.dart';
+part './constants.dart';
+part './message_filters.dart';
+part './message_splitter.dart';
+part './message_types.dart';
+part './midi_port.dart';
 
 /// Method channel used for all midi related stuff
-const MethodChannel _channel = const MethodChannel('com.synthfeeder/midi');
+const MethodChannel _methodChannel = MethodChannel(Constants.methodChannelName);
 const EventChannel _deviceEventchannel =
-    const EventChannel('com.synthfeeder/midi/devices');
+    EventChannel(Constants.deviceChannelName);
 const EventChannel _midiMessagechannel =
-    const EventChannel('com.synthfeeder/midi/messages');
+    EventChannel(Constants.messageChannelName);
 
 class Midi {
-  /// Gets the list of midi devices present on the system
-  Future<List<DeviceInfo>> listDevices() async {
-    var result = await _channel.invokeMethod('listDevices') as List;
-    return result.map((res) {
-      return new DeviceInfo(res);
+  Future<List<MidiInputPort>> get inputs async {
+    final List<Map<dynamic, dynamic>> info = await _methodChannel
+        .invokeListMethod<Map<dynamic, dynamic>>(Constants.getInputs);
+
+    return info.map((Map<dynamic, dynamic> device) {
+      return MidiInputPort(device[Constants.id],
+          manufacturer: device[Constants.manufacturer],
+          name: device[Constants.name],
+          version: device[Constants.version]);
     }).toList();
   }
 
-  Stream<MidiDeviceChangeEvent> get onDevicesChanged {
-    return _deviceEventchannel
-        .receiveBroadcastStream()
-        .map((dynamic event) => new MidiDeviceChangeEvent(event));
+  Future<List<MidiOutputPort>> get outputs async {
+    final List<Map<dynamic, dynamic>> info = await _methodChannel
+        .invokeListMethod<Map<dynamic, dynamic>>(Constants.getOutputs);
+
+    return info.map((Map<dynamic, dynamic> device) {
+      return MidiOutputPort(device[Constants.id],
+          manufacturer: device[Constants.manufacturer],
+          name: device[Constants.name],
+          version: device[Constants.version]);
+    }).toList();
   }
 
-  /**
-   * A stream that emits the current list of devices, whenever
-   * something changes
-   */
-  Stream<List<DeviceInfo>> devices() async* {
-    List<DeviceInfo> state = await this.listDevices();
-    yield state;
-    await for (MidiDeviceChangeEvent event in this.onDevicesChanged) {
-      if (event.type == MidiDeviceChangeType.Added) {
-        state.add(event.device);
-      } else {
-        state.removeWhere((item) => item.id == event.device.id);
-      }
-      yield state;
-    }
-  }
-
-  Stream<List<PortInfo>> inputs() async* {
-    await for (List<DeviceInfo> devices in this.devices()) {
-      List<PortInfo> inputs = [];
-      for (DeviceInfo device in devices) {
-        for (PortInfo port in device.ports) {
-          if (port.type == PortType.input) {
-            inputs.add(port);
-          }
-        }
-      }
-      yield inputs;
-    }
-  }
-
-  Stream<List<PortInfo>> outputs() async* {
-    await for (List<DeviceInfo> devices in this.devices()) {
-      List<PortInfo> outputs = [];
-      for (DeviceInfo device in devices) {
-        for (PortInfo port in device.ports) {
-          if (port.type == PortType.output) {
-            outputs.add(port);
-          }
-        }
-      }
-      yield outputs;
-    }
-  }
-
-  Future<MidiInputPort> openInput(PortInfo p) async {
-    MidiDevice d = await this.openDevice(p.parent);
-    return await d.openInputPort(p);
-  }
-
-  Future<MidiOutputPort> openOutput(PortInfo p) async {
-    MidiDevice d = await this.openDevice(p.parent);
-    return await d.openOutputPort(p);
-  }
-
-  Future<MidiDevice> openDevice(DeviceInfo d) async {
-    var result = await _channel.invokeMethod('openDevice', d.id);
-    return MidiDevice(result);
+  Stream<ConnectionEvent> get onDevicesChanged {
+    return _deviceEventchannel.receiveBroadcastStream().map((dynamic event) {
+      return ConnectionEvent(
+          id: event[Constants.id],
+          type: event[Constants.type] == Constants.input
+              ? MidiPortType.input
+              : MidiPortType.output,
+          state: event[Constants.state] == Constants.connected
+              ? MidiPortDeviceState.connected
+              : MidiPortDeviceState.disconnected);
+    });
   }
 }

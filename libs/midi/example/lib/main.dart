@@ -1,73 +1,51 @@
 import 'package:flutter/material.dart';
 
-import './device_info.dart';
-import './midi_provider.dart';
 import 'package:midi/midi.dart';
+import 'package:provider/provider.dart';
 
-void main() => runApp(MyApp());
+import './input_tab.dart';
+import './output_tab.dart';
 
-class MyApp extends StatefulWidget {
+void main() => runApp(MidiExample());
+
+class MidiExample extends StatefulWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  State createState() {
+    return MidiExampleState();
+  }
 }
 
-class _MyAppState extends State<MyApp> {
-  Midi midi;
+class MidiExampleState extends State<MidiExample> {
+  int tabIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    this.midi = new Midi();
-  }
-
-  openDevice(BuildContext context, DeviceInfo device) {
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => new DeviceInfoPage(device)));
+  void setTab(int index) {
+    setState(() {
+      tabIndex = index;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MidiProvider(
-      midi: midi,
-      child: MaterialApp(
-        home: Scaffold(
-          appBar: AppBar(
-            title: const Text('MIDI Example App'),
+    return Provider<Midi>(
+        builder: (BuildContext context) => Midi(),
+        child: MaterialApp(
+          home: Scaffold(
+            body: tabIndex == 0 ? InputTab() : OutputTab(),
+            bottomNavigationBar: BottomNavigationBar(
+              currentIndex: tabIndex,
+              onTap: (int index) => setTab(index),
+              items: [
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.file_download),
+                  title: Text('Inputs'),
+                ),
+                const BottomNavigationBarItem(
+                  icon: Icon(Icons.file_upload),
+                  title: Text('Outputs'),
+                ),
+              ],
+            ),
           ),
-          body: StreamBuilder(
-              stream: midi.devices(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<List<DeviceInfo>> snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: SizedBox(
-                      width: 50,
-                      height: 50,
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-                return (snapshot.data.length > 0)
-                    ? ListView(
-                        children: snapshot.data
-                            .map(
-                              (DeviceInfo d) => Card(
-                                    child: ListTile(
-                                      title: Text(d.name),
-                                      subtitle: Text(d.manufacturer),
-                                      onTap: () {
-                                        openDevice(context, d);
-                                      },
-                                    ),
-                                  ),
-                            )
-                            .toList())
-                    : Center(
-                        child: Text('No devices'),
-                      );
-              }),
-        ),
-      ),
-    );
+        ));
   }
 }

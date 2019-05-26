@@ -1,12 +1,15 @@
 package com.synthfeeder.midi;
 
 import android.content.Context;
-import android.media.midi.*;
-import android.util.SparseArray;
+import android.media.midi.MidiDevice;
+import android.media.midi.MidiDeviceInfo;
+import android.media.midi.MidiInputPort;
+import android.media.midi.MidiManager;
+import android.media.midi.MidiOutputPort;
+import android.os.Bundle;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,46 +20,17 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
-/** MidiPlugin */
+/**
+ * MidiPlugin
+ */
 public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler {
-
-  public static final String METHOD_CHANNEL_NAME = "com.synthfeeder/midi";
-  public static final String DEVICE_CHANNEL_NAME = "com.synthfeeder/midi/devices";
-  public static final String MESSAGE_CHANNEL_NAME = "com.synthfeeder/midi/messages";
-  MidiManager midi;
-
-  MethodChannel methodChannel;
-  EventChannel deviceEventChannel;
-  EventChannel midiDataChannel;
-
-  HashMap<Integer, MidiDeviceInfo> deviceInfo = new HashMap();
-
-  HashMap<Integer, MidiDevice> activeDevices = new HashMap();
-
-  SparseArray<MidiOutputPort> activeOutputPorts = new SparseArray<>();
-  int nextOutputPortIndex = 0;
-
-  SparseArray<MidiInputPort> activeInputPorts = new SparseArray<>();
-  int nextInputPortIndex = 0;
-
-  MidiManager.DeviceCallback deviceCallback;
-
-  boolean sendMidiData = false;
-  EventChannel.EventSink midiDataSink;
-
-  /** Plugin registration. */
-  public static void registerWith(Registrar registrar) {
-
-    final MethodChannel methodChannel = new MethodChannel(registrar.messenger(), METHOD_CHANNEL_NAME);
-    final EventChannel deviceEventChannel = new EventChannel(registrar.messenger(), DEVICE_CHANNEL_NAME);
-    final EventChannel messageEventChannel = new EventChannel(registrar.messenger(), MESSAGE_CHANNEL_NAME);
-    MidiManager midi = (MidiManager) registrar.context().getSystemService(Context.MIDI_SERVICE);
-    final MidiPlugin plugin = new MidiPlugin(midi, methodChannel, deviceEventChannel, messageEventChannel);
-
-  }
 
   MidiPlugin(MidiManager midi, MethodChannel methodChannel, EventChannel deviceChannel, EventChannel messageChannel) {
     this.midi = midi;
+    for (MidiDeviceInfo d : this.midi.getDevices()) {
+      this.connectedDevices.put(d.getId(), d);
+    }
+
     this.methodChannel = methodChannel;
     methodChannel.setMethodCallHandler(this);
     this.deviceEventChannel = deviceChannel;
@@ -76,113 +50,218 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     });
   }
 
+  MidiManager midi;
+
+  MethodChannel methodChannel;
+  EventChannel deviceEventChannel;
+  EventChannel midiDataChannel;
+
+  boolean sendMidiData = false;
+  EventChannel.EventSink midiDataSink;
+  MidiManager.DeviceCallback deviceCallback;
+
+  HashMap<Integer, MidiDeviceInfo> connectedDevices = new HashMap<Integer, MidiDeviceInfo>();
+  HashMap<Integer, MidiDevice> activeDevices = new HashMap<Integer, MidiDevice>();
+  HashMap<String, MidiInputPort> activeInputs = new HashMap<String, MidiInputPort>();
+  HashMap<String, MidiOutputPort> activeOutputs = new HashMap<String, MidiOutputPort>();
+
+  /**
+   * Plugin registration.
+   */
+  public static void registerWith(Registrar registrar) {
+    final MethodChannel methodChannel = new MethodChannel(registrar.messenger(), Constants.METHOD_CHANNEL_NAME);
+    final EventChannel deviceEventChannel = new EventChannel(registrar.messenger(), Constants.DEVICE_CHANNEL_NAME);
+    final EventChannel messageEventChannel = new EventChannel(registrar.messenger(), Constants.MESSAGE_CHANNEL_NAME);
+    MidiManager midi = (MidiManager) registrar.context().getSystemService(Context.MIDI_SERVICE);
+    final MidiPlugin plugin = new MidiPlugin(midi, methodChannel, deviceEventChannel, messageEventChannel);
+
+  }
+
   @Override
   public void onMethodCall(MethodCall call, Result result) {
-    if (call.method.equals("listDevices")) {
-      result.success(this.listDevices());
-    } else if (call.method.equals("openDevice")) {
-      final int id = (Integer) call.arguments;
-      final Result r = result;
-      if (activeDevices.containsKey(id)) {
-        r.success(id);
-      }
-      else {
-        this.midi.openDevice(this.deviceInfo.get(id), new MidiManager.OnDeviceOpenedListener() {
-          public void onDeviceOpened(MidiDevice dev) {
-            activeDevices.put(id, dev);
-            r.success(id);
-          }
-        }, null);
-      }
-    } else if (call.method.equals("closeDevice")) {
-      try {
-        this.activeDevices.get(call.arguments).close();
-        result.success(call.arguments);
-      } catch (IOException e) {
-        result.error(e.getClass().getName(), e.toString(), null);
-      }
-    } else if (call.method.equals("openOutputPort")) {
-      int deviceId = (Integer) ((Map) call.arguments).get("deviceId");
-      int portNumber = (Integer) ((Map) call.arguments).get("port");
-      MidiOutputPort port = this.activeDevices.get(deviceId).openOutputPort(portNumber);
-      activeOutputPorts.append(nextOutputPortIndex, port);
-      result.success(nextOutputPortIndex);
-      port.connect(new FlutterMidiReceiver(nextOutputPortIndex) {
-
-        @Override
-        public void onSend(byte[] message, int offset, int count, long timestamp) throws IOException {
-          if (sendMidiData && midiDataSink != null) {
-            byte[] trimmed = new byte[count];
-            System.arraycopy(message, offset, trimmed, 0, count);
-            HashMap toReturn = new HashMap();
-            toReturn.put("port", this.portId);
-            toReturn.put("data", trimmed);
-            midiDataSink.success(toReturn);
-          }
-        }
-      });
-      nextOutputPortIndex++;
-    } else if (call.method.equals("closeOutputPort")) {
-      try {
-
-        int id = (Integer) call.arguments;
-        this.activeOutputPorts.get(id).close();
-        result.success(call.arguments);
-
-      } catch (IOException e) {
-        result.error(e.getClass().getName(), e.toString(), null);
-      }
-    } else if (call.method.equals("closeInputPort")) {
-      try {
-
-        int id = (Integer) call.arguments;
-        this.activeInputPorts.get(id).close();
-        result.success(call.arguments);
-
-      } catch (IOException e) {
-        result.error(e.getClass().getName(), e.toString(), null);
-      }
-    }
-
-    else if (call.method.equals("openInputPort")) {
-      int deviceId = (Integer) ((Map) call.arguments).get("deviceId");
-      int portNumber = (Integer) ((Map) call.arguments).get("port");
-      MidiInputPort port = this.activeDevices.get(deviceId).openInputPort(portNumber);
-      activeInputPorts.append(nextInputPortIndex, port);
-      result.success(nextInputPortIndex);
-    } else if (call.method.equals("send")) {
-      int portNumber = (Integer) ((Map) call.arguments).get("port");
-      byte[] data = (byte[]) ((Map) call.arguments).get("data");
-      MidiInputPort port = this.activeInputPorts.get(portNumber);
-      try {
-        port.send(data, 0, data.length);
-        result.success(null);
-      } catch (IOException e) {
-        result.error(e.toString(), e.getMessage(), e.getMessage());
-      }
+    if (call.method.equals(Constants.GET_INPUTS)) {
+      this.getInputs(call, result);
+    } else if (call.method.equals(Constants.GET_OUTPUTS)) {
+      this.getOutputs(call, result);
+    } else if (call.method.equals(Constants.OPEN_OUTPUT)) {
+      this.openOutput(call, result);
+    } else if (call.method.equals(Constants.CLOSE_INPUT)) {
+      this.closeInput(call, result);
+    } else if (call.method.equals(Constants.CLOSE_OUTPUT)) {
+      this.closeOutput(call, result);
+    } else if (call.method.equals(Constants.SEND)) {
+      this.send(call, result);
     } else {
       result.notImplemented();
     }
   }
 
-  abstract class FlutterMidiReceiver extends MidiReceiver {
-    int portId;
-
-    FlutterMidiReceiver(int portId) {
-      this.portId = portId;
+  private void getInputs(MethodCall call, Result result) {
+    MidiDeviceInfo[] devices = this.midi.getDevices();
+    ArrayList<Map> portList = new ArrayList();
+    for (MidiDeviceInfo d : devices) {
+      connectedDevices.clear();
+      connectedDevices.put(d.getId(), d);
+      for (MidiDeviceInfo.PortInfo p : d.getPorts()) {
+        if (p.getType() == MidiDeviceInfo.PortInfo.TYPE_INPUT) {
+          portList.add(buildPortInfoMap(d, p));
+        }
+      }
     }
-
+    result.success(portList);
   }
 
-  private List listDevices() {
+  private void getOutputs(MethodCall call, Result result) {
     MidiDeviceInfo[] devices = this.midi.getDevices();
-    this.deviceInfo.clear();
-    ArrayList<Map> list = new ArrayList();
-    for (MidiDeviceInfo dev : devices) {
-      this.deviceInfo.put(dev.getId(), dev);
-      list.add(DeviceInfoMapper.readDevice(dev));
+    ArrayList<Map> portList = new ArrayList();
+    for (MidiDeviceInfo d : devices) {
+      for (MidiDeviceInfo.PortInfo p : d.getPorts()) {
+        if (p.getType() == MidiDeviceInfo.PortInfo.TYPE_OUTPUT) {
+          portList.add(buildPortInfoMap(d, p));
+        }
+      }
     }
-    return list;
+    result.success(portList);
+  }
+
+  private void openOutput(MethodCall call, final Result result) {
+    final String id = (String) call.arguments;
+    final int deviceId = this.getDeviceId(id);
+    final int portId = this.getPortId(id);
+    // already connected, do nothing
+    if (activeOutputs.containsKey(id)) {
+      result.success(id);
+    } else {
+      if (activeDevices.containsKey(deviceId)) {
+        MidiOutputPort p = activeDevices.get(deviceId).openOutputPort(portId);
+        p.connect(new FlutterMidiReceiver(id) {
+          @Override
+          public void onSend(byte[] message, int offset, int count, long timestamp) throws IOException {
+            if (sendMidiData && midiDataSink != null) {
+              byte[] trimmed = new byte[count];
+              System.arraycopy(message, offset, trimmed, 0, count);
+              HashMap toReturn = new HashMap();
+              toReturn.put(Constants.PORT, this.id);
+              toReturn.put(Constants.DATA, trimmed);
+              midiDataSink.success(toReturn);
+            }
+          }
+        });
+        this.activeOutputs.put(id, p);
+        result.success(id);
+      } else {
+        this.midi.openDevice(this.connectedDevices.get(deviceId), new MidiManager.OnDeviceOpenedListener() {
+          @Override
+          public void onDeviceOpened(MidiDevice device) {
+            activeDevices.put(deviceId, device);
+            MidiOutputPort p = device.openOutputPort(portId);
+            p.connect(new FlutterMidiReceiver(id) {
+              @Override
+              public void onSend(byte[] message, int offset, int count, long timestamp) throws IOException {
+                if (sendMidiData && midiDataSink != null) {
+                  byte[] trimmed = new byte[count];
+                  System.arraycopy(message, offset, trimmed, 0, count);
+                  HashMap toReturn = new HashMap();
+                  toReturn.put(Constants.PORT, this.id);
+                  toReturn.put(Constants.DATA, trimmed);
+                  midiDataSink.success(toReturn);
+                }
+              }
+            });
+            activeOutputs.put(id, p);
+            result.success(id);
+          }
+        }, null);
+      }
+    }
+  }
+
+  private void closeOutput(MethodCall call, final Result result) {
+    final String id = (String) call.arguments;
+    MidiOutputPort port = activeOutputs.get(id);
+    try {
+
+      if (port != null) {
+        port.close();
+        activeOutputs.remove(id);
+        result.success(id);
+      } else {
+        result.error(Constants.ERR_NOT_OPEN, "Output Port " + id + " not open", null);
+      }
+    } catch (IOException e) {
+      result.error(Constants.ERR_IO, "Output Port " + id + " could not be closed", e);
+    }
+  }
+
+  private void closeInput(MethodCall call, final Result result) {
+    final String id = (String) call.arguments;
+    MidiInputPort port = activeInputs.get(id);
+    try {
+
+      if (port != null) {
+        port.close();
+        activeInputs.remove(id);
+        result.success(id);
+      } else {
+        result.error(Constants.ERR_NOT_OPEN, "Input Port " + id + " not open", null);
+      }
+    } catch (IOException e) {
+      result.error(Constants.ERR_IO, "Input Port " + id + " could not be closed", e);
+    }
+  }
+
+  private void send(MethodCall call, final Result result) {
+    final String id = (String) ((Map<String, ?>) call.arguments).get(Constants.PORT);
+    MidiInputPort port = activeInputs.get(id);
+    try {
+      if (port != null) {
+        byte[] data = (byte[]) ((Map<String, ?>) call.arguments).get(Constants.DATA);
+        port.send(data, 0, data.length);
+      } else {
+        result.error(Constants.ERR_NOT_OPEN, "Input Port " + id + " not open", null);
+      }
+    } catch (IOException e) {
+      result.error(Constants.ERR_IO, "Could not write to port " + id, e);
+    }
+  }
+
+  private int getDeviceId(String id) {
+    return Integer.parseInt(id.substring(2, id.indexOf(':',2)));
+  }
+
+  private int getPortId(String id) {
+    return Integer.parseInt(id.substring(id.indexOf(':', 2) + 1));
+  }
+
+  /**
+   * Constructs an ID to represent the device and port combo.
+   *
+   * Prefixed with i for input, o for output.
+   *
+   * Eg:
+   *   i:12:0
+   *
+   *   for Input 0 of Device 12
+   *
+   * @param d
+   * @param p
+   * @return
+   */
+  private String buildId(MidiDeviceInfo d, MidiDeviceInfo.PortInfo p) {
+    return (p.getType() == MidiDeviceInfo.PortInfo.TYPE_INPUT ? Constants.INPUT : Constants.OUTPUT) + ":" + d.getId() + ":" + p.getPortNumber();
+  }
+
+
+  Map<String, ?> buildPortInfoMap(MidiDeviceInfo d, MidiDeviceInfo.PortInfo p) {
+    HashMap m = new HashMap();
+    Bundle deviceProps = d.getProperties();
+    m.put(Constants.ID, buildId(d, p));
+    m.put(Constants.MANUFACTURER, deviceProps.getString(MidiDeviceInfo.PROPERTY_MANUFACTURER));
+    m.put(Constants.VERSION, deviceProps.getString(MidiDeviceInfo.PROPERTY_VERSION));
+    m.put(Constants.NUMBER, p.getPortNumber());
+    m.put(Constants.NAME, p.getName().length() > 0 ? p.getName() : deviceProps.getString(MidiDeviceInfo.PROPERTY_PRODUCT) + " " + p.getPortNumber());
+
+    return m;
   }
 
   @Override
@@ -192,7 +271,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
       public void onDeviceAdded(MidiDeviceInfo device) {
         HashMap event = new HashMap();
         event.put("type", "DEVICE_ADDED");
-        event.put("device", DeviceInfoMapper.readDevice(device));
+        //event.put("device", DeviceInfoMapper.readDevice(device));
         eventSink.success(event);
       }
 
@@ -200,7 +279,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
       public void onDeviceRemoved(MidiDeviceInfo device) {
         HashMap event = new HashMap();
         event.put("type", "DEVICE_REMOVED");
-        event.put("device", DeviceInfoMapper.readDevice(device));
+        //event.put("device", DeviceInfoMapper.readDevice(device));
         eventSink.success(event);
       }
     };

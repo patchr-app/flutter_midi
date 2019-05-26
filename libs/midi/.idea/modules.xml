@@ -3,7 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/midi.iml" filepath="$PROJECT_DIR$/midi.iml" />
-      <module fileurl="file://$PROJECT_DIR$/midi_android.iml" filepath="$PROJECT_DIR$/midi_android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/midi_android.iml" filepath="$PROJECT_DIR$/android/midi_android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/example/android/midi_example_android.iml" filepath="$PROJECT_DIR$/example/android/midi_example_android.iml" />
     </modules>
   </component>
 </project>
