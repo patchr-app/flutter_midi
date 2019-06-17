@@ -23,8 +23,7 @@ abstract class MidiPort {
     _connectionController.add(MidiPortConnectionState.closed);
     _stateController.add(MidiPortDeviceState.connected);
 
-    _deviceEvents = _deviceEventchannel
-        .receiveBroadcastStream()
+    _events = _deviceEvents
         .where((dynamic args) => args['id'] == id)
         .listen((dynamic args) {
       if (args[state] == Constants.connected) {
@@ -53,12 +52,12 @@ abstract class MidiPort {
   final String version;
   final int number;
 
-  StreamSubscription _deviceEvents;
+  StreamSubscription<dynamic> _events;
 
   void dispose() {
     _connectionController.close();
     _stateController.close();
-    _deviceEvents.cancel();
+    _events.cancel();
   }
 
   Future<void> close();
@@ -119,8 +118,7 @@ class MidiOutputPort extends MidiPort {
   }
 
   Stream<Uint8List> get messages {
-    return _midiMessagechannel
-        .receiveBroadcastStream()
+    return _midiMessages
         .where((dynamic data) => data[Constants.port] == id)
         .map((dynamic data) => data[Constants.data] as Uint8List)
         .transform(MessageSplitter());

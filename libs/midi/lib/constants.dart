@@ -27,6 +27,7 @@ class Constants {
   static const String connected = 'connected';
   static const String disconnected = 'disconnected';
   static const String type = 'type';
-  static const String input = 'input';
-  static const String output = 'output';
+
+  static const String input = 'i';
+  static const String output = 'o';
 }

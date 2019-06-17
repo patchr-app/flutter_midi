@@ -7,6 +7,8 @@ import android.media.midi.MidiInputPort;
 import android.media.midi.MidiManager;
 import android.media.midi.MidiOutputPort;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -145,7 +147,8 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
             activeDevices.put(deviceId, device);
             MidiInputPort p = device.openInputPort(portId);
             activeInputs.put(id, p);
-            result.success(id);
+            MethodResultWrapper wrapper = new MethodResultWrapper(result);
+            wrapper.success(id);
           }
         }, null);
       }
@@ -160,6 +163,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     if (activeOutputs.containsKey(id)) {
       result.success(id);
     } else {
+      final EventSinkWrapper wrapper = new EventSinkWrapper(midiDataSink);
       if (activeDevices.containsKey(deviceId)) {
         MidiOutputPort p = activeDevices.get(deviceId).openOutputPort(portId);
         p.connect(new FlutterMidiReceiver(id) {
@@ -171,7 +175,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
               HashMap toReturn = new HashMap();
               toReturn.put(Constants.PORT, this.id);
               toReturn.put(Constants.DATA, trimmed);
-              midiDataSink.success(toReturn);
+              wrapper.success(toReturn);
             }
           }
         });
@@ -192,7 +196,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
                   HashMap toReturn = new HashMap();
                   toReturn.put(Constants.PORT, this.id);
                   toReturn.put(Constants.DATA, trimmed);
-                  midiDataSink.success(toReturn);
+                  wrapper.success(toReturn);
                 }
               }
             });
@@ -263,11 +267,11 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
 
   /**
    * Constructs an ID to represent the device and port combo.
-   *
+   * <p>
    * Prefixed with i for input, o for output.
-   *
+   * <p>
    * Eg: i:12:0
-   *
+   * <p>
    * for Input 0 of Device 12
    *
    * @param d
@@ -286,6 +290,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     m.put(Constants.MANUFACTURER, deviceProps.getString(MidiDeviceInfo.PROPERTY_MANUFACTURER));
     m.put(Constants.VERSION, deviceProps.getString(MidiDeviceInfo.PROPERTY_VERSION));
     m.put(Constants.NUMBER, p.getPortNumber());
+    m.put(Constants.TYPE, p.getType() == MidiDeviceInfo.PortInfo.TYPE_INPUT ? Constants.INPUT : Constants.OUTPUT);
     m.put(Constants.NAME, p.getName().length() > 0 ? p.getName()
         : deviceProps.getString(MidiDeviceInfo.PROPERTY_PRODUCT) + " " + p.getPortNumber());
 
@@ -295,20 +300,29 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
   @Override
   public void onListen(Object o, final EventChannel.EventSink eventSink) {
     this.deviceCallback = new MidiManager.DeviceCallback() {
+      EventSinkWrapper wrapper = new EventSinkWrapper(eventSink);
       @Override
       public void onDeviceAdded(MidiDeviceInfo device) {
-        HashMap event = new HashMap();
-        event.put("type", "DEVICE_ADDED");
-        // event.put("device", DeviceInfoMapper.readDevice(device));
-        eventSink.success(event);
+        for (MidiDeviceInfo.PortInfo p : device.getPorts()) {
+          Map portInfo = buildPortInfoMap(device, p);
+          HashMap event = new HashMap();
+          event.put(Constants.ID, buildId(device, p));
+          event.put(Constants.STATE, Constants.CONNECTED);
+          event.put(Constants.PORT, portInfo);
+          wrapper.success(event);
+        }
       }
 
       @Override
       public void onDeviceRemoved(MidiDeviceInfo device) {
-        HashMap event = new HashMap();
-        event.put("type", "DEVICE_REMOVED");
-        // event.put("device", DeviceInfoMapper.readDevice(device));
-        eventSink.success(event);
+        for (MidiDeviceInfo.PortInfo p : device.getPorts()) {
+          Map portInfo = buildPortInfoMap(device, p);
+          HashMap event = new HashMap();
+          event.put(Constants.ID, buildId(device, p));
+          event.put(Constants.STATE, Constants.DISCONNECTED);
+          event.put(Constants.PORT, portInfo);
+          wrapper.success(event);
+        }
       }
     };
 
@@ -318,5 +332,88 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
   @Override
   public void onCancel(Object o) {
     this.midi.unregisterDeviceCallback(this.deviceCallback);
+  }
+
+  private static class EventSinkWrapper implements EventChannel.EventSink {
+
+    private EventChannel.EventSink rawSink;
+    private Handler handler;
+
+    EventSinkWrapper(EventChannel.EventSink sink) {
+      rawSink = sink;
+      handler = new Handler(Looper.getMainLooper());
+    }
+
+    @Override
+    public void success(final Object result) {
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          rawSink.success(result);
+        }
+      });
+    }
+
+    @Override
+    public void error(final String errorCode, final String errorMessage, final Object errorDetails) {
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          rawSink.error(errorCode, errorMessage, errorDetails);
+        }
+      });
+    }
+
+    @Override
+    public void endOfStream() {
+      System.out.println("End of stream");
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          rawSink.endOfStream();
+        }
+      });
+    }
+  }
+
+  // MethodChannel.Result wrapper that responds on the platform thread.
+  private static class MethodResultWrapper implements Result {
+    private Result methodResult;
+    private Handler handler;
+
+    MethodResultWrapper(Result result) {
+      methodResult = result;
+      handler = new Handler(Looper.getMainLooper());
+    }
+
+    @Override
+    public void success(final Object result) {
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          methodResult.success(result);
+        }
+      });
+    }
+
+    @Override
+    public void error(final String errorCode, final String errorMessage, final Object errorDetails) {
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          methodResult.error(errorCode, errorMessage, errorDetails);
+        }
+      });
+    }
+
+    @Override
+    public void notImplemented() {
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          methodResult.notImplemented();
+        }
+      });
+    }
   }
 }

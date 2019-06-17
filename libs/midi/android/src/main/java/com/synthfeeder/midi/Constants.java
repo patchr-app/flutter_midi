@@ -30,9 +30,15 @@ public class Constants {
   public static final String PORT = "port";
   public static final String DATA = "data";
 
-  public static final char INPUT = 'i';
-  public static final char OUTPUT = 'o';
+  public static final String INPUT = "i";
+  public static final String OUTPUT = "o";
   public static final String NUMBER = "number";
+
+  public static final String TYPE = "type";
+
+  public static final String STATE = "state";
+  public static final String CONNECTED = "connected";
+  public static final String DISCONNECTED = "disconnected";
 }
 
 

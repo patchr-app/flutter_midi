@@ -19,6 +19,9 @@ const EventChannel _deviceEventchannel =
 const EventChannel _midiMessagechannel =
     EventChannel(Constants.messageChannelName);
 
+Stream<dynamic> _deviceEvents = _deviceEventchannel.receiveBroadcastStream();
+Stream<dynamic> _midiMessages = _deviceEventchannel.receiveBroadcastStream();
+
 class Midi {
   Future<List<MidiInputPort>> get inputs async {
     final List<Map<dynamic, dynamic>> info = await _methodChannel
@@ -45,15 +48,9 @@ class Midi {
   }
 
   Stream<ConnectionEvent> get onDevicesChanged {
-    return _deviceEventchannel.receiveBroadcastStream().map((dynamic event) {
-      return ConnectionEvent(
-          id: event[Constants.id],
-          type: event[Constants.type] == Constants.input
-              ? MidiPortType.input
-              : MidiPortType.output,
-          state: event[Constants.state] == Constants.connected
-              ? MidiPortDeviceState.connected
-              : MidiPortDeviceState.disconnected);
+    return _deviceEvents.map((dynamic event) {
+      print(event);
+      return ConnectionEvent.fromMap(event);
     });
   }
 }
