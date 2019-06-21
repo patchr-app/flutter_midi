@@ -49,7 +49,6 @@ class Midi {
 
   Stream<ConnectionEvent> get onDevicesChanged {
     return _deviceEvents.map((dynamic event) {
-      print(event);
       return ConnectionEvent.fromMap(event);
     });
   }
