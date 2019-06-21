@@ -303,6 +303,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
       EventSinkWrapper wrapper = new EventSinkWrapper(eventSink);
       @Override
       public void onDeviceAdded(MidiDeviceInfo device) {
+        connectedDevices.put(device.getId(), device);
         for (MidiDeviceInfo.PortInfo p : device.getPorts()) {
           Map portInfo = buildPortInfoMap(device, p);
           HashMap event = new HashMap();
@@ -315,6 +316,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
 
       @Override
       public void onDeviceRemoved(MidiDeviceInfo device) {
+        connectedDevices.remove(device.getId());
         for (MidiDeviceInfo.PortInfo p : device.getPorts()) {
           Map portInfo = buildPortInfoMap(device, p);
           HashMap event = new HashMap();
