@@ -77,6 +77,9 @@ class MidiInputPort extends MidiPort {
         );
 
   @override
+  bool operator ==(other) => other is MidiInputPort && this.id == other.id;
+
+  @override
   Future<void> open() async {
     _connectionController.add(MidiPortConnectionState.pending);
     await _methodChannel.invokeMethod<void>(Constants.openInput, id);
