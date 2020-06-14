@@ -14,11 +14,6 @@ part './message_types.dart';
 part './midi_port.dart';
 
 class Midi {
-  Midi._() {}
-
-  static Midi get instance => Midi._instance ?? Midi._();
-  static Midi _instance;
-
   Future<List<MidiSourcePort>> getSources() async {
     return outputs;
   }
