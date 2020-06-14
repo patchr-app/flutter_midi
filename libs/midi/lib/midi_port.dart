@@ -7,8 +7,8 @@ enum MidiPortConnectionState {
 }
 
 enum MidiPortType {
-  input,
-  output,
+  destination,
+  source,
 }
 
 class MidiMessage {
@@ -18,8 +18,14 @@ class MidiMessage {
 }
 
 abstract class MidiPort {
-  MidiPort(this.id,
-      {this.manufacturer, this.name, this.type, this.version, this.number}) {
+  MidiPort(
+    this.id, {
+    this.manufacturer,
+    this.name,
+    this.type,
+    this.version,
+    this.number,
+  }) {
     _connectionController.add(MidiPortConnectionState.closed);
     _stateController.add(MidiPortDeviceState.connected);
 
@@ -64,20 +70,26 @@ abstract class MidiPort {
   Future<void> open();
 }
 
-class MidiInputPort extends MidiPort {
-  MidiInputPort(String id,
-      {String manufacturer, String name, String version, int number})
-      : super(
+/// A midi port for sending data to
+class MidiDestinationPort extends MidiPort {
+  MidiDestinationPort(
+    String id, {
+    String manufacturer,
+    String name,
+    String version,
+    int number,
+  }) : super(
           id,
           manufacturer: manufacturer,
           name: name,
           version: version,
-          type: MidiPortType.input,
+          type: MidiPortType.destination,
           number: number,
         );
 
   @override
-  bool operator ==(other) => other is MidiInputPort && this.id == other.id;
+  bool operator ==(other) =>
+      other is MidiDestinationPort && this.id == other.id;
 
   @override
   Future<void> open() async {
@@ -99,13 +111,13 @@ class MidiInputPort extends MidiPort {
   }
 }
 
-class MidiOutputPort extends MidiPort {
-  MidiOutputPort(String id, {String manufacturer, String name, String version})
+class MidiSourcePort extends MidiPort {
+  MidiSourcePort(String id, {String manufacturer, String name, String version})
       : super(id,
             manufacturer: manufacturer,
             name: name,
             version: version,
-            type: MidiPortType.output);
+            type: MidiPortType.source);
 
   @override
   Future<void> open() async {

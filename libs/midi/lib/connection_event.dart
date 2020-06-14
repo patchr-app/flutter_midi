@@ -18,17 +18,17 @@ class ConnectionEvent {
     return ConnectionEvent(
         id: data[Constants.id],
         port: port[Constants.type] == Constants.input
-            ? MidiInputPort(port[Constants.id],
+            ? MidiDestinationPort(port[Constants.id],
                 manufacturer: port[Constants.manufacturer],
                 name: port[Constants.name],
                 version: port[Constants.version])
-            : MidiOutputPort(port[Constants.id],
+            : MidiSourcePort(port[Constants.id],
                 manufacturer: port[Constants.manufacturer],
                 name: port[Constants.name],
                 version: port[Constants.version]),
         type: data[Constants.type] == Constants.input
-            ? MidiPortType.input
-            : MidiPortType.output,
+            ? MidiPortType.destination
+            : MidiPortType.source,
         state: data[Constants.state] == Constants.connected
             ? MidiPortDeviceState.connected
             : MidiPortDeviceState.disconnected);
