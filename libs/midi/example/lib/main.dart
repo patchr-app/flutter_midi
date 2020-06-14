@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:midi/midi.dart';
 import 'package:provider/provider.dart';
 
-import './input_tab.dart';
-import './output_tab.dart';
+import './destinations_tab.dart';
+import './sources_tab.dart';
 
 void main() => runApp(MidiExample());
 
@@ -30,7 +30,7 @@ class MidiExampleState extends State<MidiExample> {
         builder: (BuildContext context) => Midi(),
         child: MaterialApp(
           home: Scaffold(
-            body: tabIndex == 0 ? InputTab() : OutputTab(),
+            body: tabIndex == 0 ? DestinationsTab() : SourcesTab(),
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: tabIndex,
               onTap: (int index) => setTab(index),

@@ -3,16 +3,16 @@ import 'package:midi/midi.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
 
-class OutputPortPage extends StatefulWidget {
-  OutputPortPage({this.port});
-  final MidiOutputPort port;
+class SourcePortPage extends StatefulWidget {
+  SourcePortPage({this.port});
+  final MidiSourcePort port;
 
   createState() {
-    return OutputPortPageState();
+    return SourcePortPageState();
   }
 }
 
-class OutputPortPageState extends State<OutputPortPage> {
+class SourcePortPageState extends State<SourcePortPage> {
   List<String> messages = [];
   StreamSubscription messageSub;
 
