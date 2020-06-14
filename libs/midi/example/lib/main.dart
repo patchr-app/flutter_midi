@@ -34,14 +34,14 @@ class MidiExampleState extends State<MidiExample> {
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: tabIndex,
               onTap: (int index) => setTab(index),
-              items: [
-                const BottomNavigationBarItem(
-                  icon: Icon(Icons.file_download),
-                  title: Text('Inputs'),
-                ),
-                const BottomNavigationBarItem(
+              items: const [
+                BottomNavigationBarItem(
                   icon: Icon(Icons.file_upload),
-                  title: Text('Outputs'),
+                  title: Text('Destinations'),
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.file_download),
+                  title: Text('Sources'),
                 ),
               ],
             ),

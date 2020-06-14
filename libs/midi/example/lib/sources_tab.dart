@@ -24,8 +24,8 @@ class SourcesTab extends StatelessWidget {
         title: const Text('Sources'),
       ),
       body: FutureBuilder<List<MidiSourcePort>>(
-        future: midi.outputs,
-        initialData: [],
+        future: midi.getSources(),
+        initialData: const [],
         builder: (BuildContext context,
                 AsyncSnapshot<List<MidiSourcePort>> snapshot) =>
             ListView(

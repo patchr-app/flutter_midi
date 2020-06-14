@@ -1,13 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:midi/midi.dart';
-import 'dart:async';
-import 'package:provider/provider.dart';
 
 class SourcePortPage extends StatefulWidget {
-  SourcePortPage({this.port});
+  const SourcePortPage({this.port});
   final MidiSourcePort port;
 
-  createState() {
+  @override
+  State<SourcePortPage> createState() {
     return SourcePortPageState();
   }
 }
@@ -16,11 +16,13 @@ class SourcePortPageState extends State<SourcePortPage> {
   List<String> messages = [];
   StreamSubscription messageSub;
 
+  @override
   void initState() {
     super.initState();
   }
 
-  didChangeDependencies() {
+  @override
+  void didChangeDependencies() {
     super.didChangeDependencies();
     connect();
   }
@@ -34,16 +36,18 @@ class SourcePortPageState extends State<SourcePortPage> {
     });
   }
 
+  @override
   void dispose() {
-    super.dispose();
-    this.messageSub.cancel();
+    messageSub.cancel();
     widget.port.close();
+    super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Output Port'),
+        title: const Text('Source Port'),
       ),
       body: ListView(
         children: messages.map((message) => Text(message)).toList(),

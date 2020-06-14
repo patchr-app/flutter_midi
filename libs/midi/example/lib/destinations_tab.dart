@@ -14,7 +14,7 @@ class DestinationsTab extends StatelessWidget {
       ),
       body: FutureBuilder<List<MidiDestinationPort>>(
         future: midi.getDestinations(),
-        initialData: [],
+        initialData: const [],
         builder: (BuildContext context,
                 AsyncSnapshot<List<MidiDestinationPort>> snapshot) =>
             ListView(
