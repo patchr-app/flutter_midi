@@ -1,4 +1,4 @@
-#import <Flutter/Flutter.h>
+#import <FlutterMacOS/FlutterMacOS.h>
 
 @interface MidiPlugin : NSObject<FlutterPlugin>
 @end

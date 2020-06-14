@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Flutter
+import FlutterMacOS
 
 public class Constants {
   public static var METHOD_CHANNEL_NAME = "com.synthfeeder/midi";

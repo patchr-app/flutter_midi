@@ -1,8 +1,7 @@
 name: midi_platform_interface
-description: Platform interface for the midi plugin 
-version: 0.0.1
-author:
-homepage:
+description: Platform interface for the midi plugin
+version: 0.0.2
+homepage: https://synthfeeder.com
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -17,4 +16,3 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-

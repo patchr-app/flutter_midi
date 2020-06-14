@@ -1,5 +1,4 @@
-import Flutter
-import UIKit
+import FlutterMacOS
 import CoreMIDI
 
 public class SwiftMidiPlugin: NSObject, FlutterPlugin {
@@ -8,9 +7,9 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
   var deviceEventChannel: FlutterEventChannel;
   var midiDataChannel: FlutterEventChannel;
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let methodChannel = FlutterMethodChannel(name: Constants.METHOD_CHANNEL_NAME, binaryMessenger: registrar.messenger())
-    let deviceEventChannel = FlutterEventChannel(name: Constants.DEVICE_CHANNEL_NAME, binaryMessenger: registrar.messenger())
-    let messageEventChannel = FlutterEventChannel(name: Constants.MESSAGE_CHANNEL_NAME, binaryMessenger: registrar.messenger())
+    let methodChannel = FlutterMethodChannel(name: Constants.METHOD_CHANNEL_NAME, binaryMessenger: registrar.messenger)
+    let deviceEventChannel = FlutterEventChannel(name: Constants.DEVICE_CHANNEL_NAME, binaryMessenger: registrar.messenger)
+    let messageEventChannel = FlutterEventChannel(name: Constants.MESSAGE_CHANNEL_NAME, binaryMessenger: registrar.messenger)
     let instance = SwiftMidiPlugin(methodChannel: methodChannel, deviceEventChannel: deviceEventChannel, midiDataChannel: messageEventChannel)
     registrar.addMethodCallDelegate(instance, channel: methodChannel)
   }
