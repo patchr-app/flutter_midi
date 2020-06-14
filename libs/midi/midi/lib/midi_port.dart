@@ -29,7 +29,8 @@ abstract class MidiPort {
     _connectionController.add(MidiPortConnectionState.closed);
     _stateController.add(MidiPortDeviceState.connected);
 
-    _events = _deviceEvents
+    _events = MidiPlatform.instance
+        .deviceEvents()
         .where((dynamic args) => args['id'] == id)
         .listen((dynamic args) {
       if (args[state] == Constants.connected) {
@@ -94,20 +95,19 @@ class MidiDestinationPort extends MidiPort {
   @override
   Future<void> open() async {
     _connectionController.add(MidiPortConnectionState.pending);
-    await _methodChannel.invokeMethod<void>(Constants.openInput, id);
+    await MidiPlatform.instance.openInput(id);
     _connectionController.add(MidiPortConnectionState.open);
   }
 
   @override
   Future<void> close() async {
-    await _methodChannel.invokeMethod<void>(Constants.closeInput, id);
+    await MidiPlatform.instance.closeInput(id);
     _connectionController.add(MidiPortConnectionState.closed);
   }
 
   /// Send data do this midi port
   Future<void> send(Uint8List message) {
-    return _methodChannel.invokeMethod(Constants.send,
-        <String, dynamic>{Constants.port: id, Constants.data: message});
+    return MidiPlatform.instance.send(id, message);
   }
 }
 
@@ -122,18 +122,19 @@ class MidiSourcePort extends MidiPort {
   @override
   Future<void> open() async {
     _connectionController.add(MidiPortConnectionState.pending);
-    await _methodChannel.invokeMethod<void>(Constants.openOutput, id);
+    await MidiPlatform.instance.openOutput(id);
     _connectionController.add(MidiPortConnectionState.open);
   }
 
   @override
   Future<void> close() async {
-    await _methodChannel.invokeMethod<void>(Constants.closeOutput, id);
+    await MidiPlatform.instance.closeOutput(id);
     _connectionController.add(MidiPortConnectionState.closed);
   }
 
   Stream<Uint8List> get messages {
-    return _midiMessages
+    return MidiPlatform.instance
+        .midiMessages()
         .where((dynamic data) => data[Constants.port] == id)
         .map((dynamic data) => data[Constants.data] as Uint8List)
         .transform(MessageSplitter());
