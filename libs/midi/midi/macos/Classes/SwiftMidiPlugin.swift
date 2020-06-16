@@ -24,18 +24,18 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     
-    if (call.method==(Constants.GET_INPUTS)) {
-      self.getInputs(call: call, result: result);
-    } else if (call.method==(Constants.GET_OUTPUTS)) {
-      self.getOutputs(call: call, result: result);
-    } else if (call.method==(Constants.OPEN_INPUT)) {
-      self.openInput(call: call, result: result);
-    } else if (call.method==(Constants.OPEN_OUTPUT)) {
-      self.openOutput(call: call, result: result);
-    } else if (call.method==(Constants.CLOSE_INPUT)) {
-      self.closeInput(call: call, result: result);
-    } else if (call.method==(Constants.CLOSE_OUTPUT)) {
-      self.closeOutput(call: call, result: result);
+    if (call.method==(Constants.GET_DESTINATIONS)) {
+      self.getDestinations(call: call, result: result);
+    } else if (call.method==(Constants.GET_SOURCES)) {
+      self.getSources(call: call, result: result);
+    } else if (call.method==(Constants.OPEN_DESTINATION)) {
+      self.openDestination(call: call, result: result);
+    } else if (call.method==(Constants.OPEN_SOURCE)) {
+      self.openSource(call: call, result: result);
+    } else if (call.method==(Constants.CLOSE_DESTINATION)) {
+      self.closeDestination(call: call, result: result);
+    } else if (call.method==(Constants.CLOSE_SOURCE)) {
+      self.closeSource(call: call, result: result);
     } else if (call.method==(Constants.SEND)) {
       self.send(call: call, result: result);
     } 
@@ -47,7 +47,7 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
   // final MidiPortType type;
   // final String version;
   // final int number;
-  func getInputs(call: FlutterMethodCall, result: FlutterResult) {
+  func getDestinations(call: FlutterMethodCall, result: FlutterResult) {
     var ports: Array<Dictionary<String, Any>> = [];
     let count: Int = MIDIGetNumberOfDestinations();
     for i in 0 ..< count {
@@ -69,7 +69,7 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
     result(ports);
   }
 
-  func getOutputs(call: FlutterMethodCall, result: FlutterResult) {
+  func getSources(call: FlutterMethodCall, result: FlutterResult) {
     var ports: Array<Dictionary<String, Any>> = [];
     let count: Int = MIDIGetNumberOfSources();
     for i in 0 ..< count {
@@ -91,17 +91,17 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
     result(ports);
   }
 
-  func openInput(call: FlutterMethodCall, result: FlutterResult) {
+  func openDestination(call: FlutterMethodCall, result: FlutterResult) {
     result(Void());
   }
-  func openOutput(call: FlutterMethodCall, result: FlutterResult) {
+  func openSource(call: FlutterMethodCall, result: FlutterResult) {
     result(Void());
   }
 
-  func closeInput(call: FlutterMethodCall, result: FlutterResult) {
+  func closeDestination(call: FlutterMethodCall, result: FlutterResult) {
     result(Void());
   }
-  func closeOutput(call: FlutterMethodCall, result: FlutterResult) {
+  func closeSource(call: FlutterMethodCall, result: FlutterResult) {
     result(Void());
   }
   func send(call: FlutterMethodCall, result: FlutterResult) {

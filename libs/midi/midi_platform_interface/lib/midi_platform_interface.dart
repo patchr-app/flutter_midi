@@ -32,28 +32,28 @@ abstract class MidiPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<List<Map<dynamic, dynamic>>> getInputs() {
-    throw UnimplementedError('getInputs() has not been implemented.');
+  Future<List<Map<dynamic, dynamic>>> getDestinations() {
+    throw UnimplementedError('getDestinations() has not been implemented.');
   }
 
-  Future<List<Map<dynamic, dynamic>>> getOutputs() {
-    throw UnimplementedError('getOutputs() has not been implemented.');
+  Future<List<Map<dynamic, dynamic>>> getSources() {
+    throw UnimplementedError('getSources() has not been implemented.');
   }
 
-  Future<void> openInput(String id) {
-    throw UnimplementedError('openInput() has not been implemented.');
+  Future<void> openDestination(String id) {
+    throw UnimplementedError('openDestination() has not been implemented.');
   }
 
-  Future<void> openOutput(String id) {
-    throw UnimplementedError('openOutput() has not been implemented.');
+  Future<void> openSource(String id) {
+    throw UnimplementedError('openSource() has not been implemented.');
   }
 
-  Future<void> closeInput(String id) {
-    throw UnimplementedError('closeInput() has not been implemented.');
+  Future<void> closeDestination(String id) {
+    throw UnimplementedError('closeDestination() has not been implemented.');
   }
 
-  Future<void> closeOutput(String id) {
-    throw UnimplementedError('closeOutput() has not been implemented.');
+  Future<void> closeSource(String id) {
+    throw UnimplementedError('closeSource() has not been implemented.');
   }
 
   Future<void> send(String id, Uint8List message) {

@@ -14,14 +14,15 @@ public class Constants {
   public static var MESSAGE_CHANNEL_NAME = "com.synthfeeder/midi/messages";
   
   
-  public static var GET_INPUTS = "getInputs";
-  public static var GET_OUTPUTS = "getOutputs";
   
-  public static var OPEN_INPUT = "openInput";
-  public static var OPEN_OUTPUT = "openOutput";
-  
-  public static var CLOSE_INPUT = "closeInput";
-  public static var CLOSE_OUTPUT = "closeOutput";
+  public static var GET_DESTINATIONS = "getDestinations";
+  public static var GET_SOURCES = "getSources";
+
+  public static var OPEN_DESTINATION = "openDestination";
+  public static var OPEN_SOURCE = "openSource";
+
+  public static var CLOSE_DESTINATION = "closeDestination";
+  public static var CLOSE_SOURCE = "closeSource";
   
   public static var SEND = "send";
   
@@ -38,8 +39,8 @@ public class Constants {
   public static var PORT = "port";
   public static var DATA = "data";
   
-  public static var INPUT = "i";
-  public static var OUTPUT = "o";
+  public static var DESTINATION = "d";
+  public static var SOURCE = "s";
   public static var NUMBER = "number";
   
   public static var TYPE = "type";

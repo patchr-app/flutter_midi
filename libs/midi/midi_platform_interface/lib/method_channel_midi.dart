@@ -21,34 +21,34 @@ class MethodChannelMidi extends MidiPlatform {
   final _deviceEventStream = _deviceEventchannel.receiveBroadcastStream();
 
   @override
-  Future<List<Map<dynamic, dynamic>>> getInputs() {
+  Future<List<Map<dynamic, dynamic>>> getDestinations() {
     return _methodChannel
         .invokeListMethod<Map<dynamic, dynamic>>(Constants.getInputs);
   }
 
   @override
-  Future<List<Map<dynamic, dynamic>>> getOutputs() {
+  Future<List<Map<dynamic, dynamic>>> getSources() {
     return _methodChannel
         .invokeListMethod<Map<dynamic, dynamic>>(Constants.getOutputs);
   }
 
   @override
-  Future<void> openInput(String id) {
+  Future<void> openDestination(String id) {
     return _methodChannel.invokeMethod<void>(Constants.openInput, id);
   }
 
   @override
-  Future<void> openOutput(String id) {
+  Future<void> openSource(String id) {
     return _methodChannel.invokeMethod<void>(Constants.openOutput, id);
   }
 
   @override
-  Future<void> closeInput(String id) {
+  Future<void> closeDestination(String id) {
     return _methodChannel.invokeMethod<void>(Constants.closeInput, id);
   }
 
   @override
-  Future<void> closeOutput(String id) {
+  Future<void> closeSource(String id) {
     return _methodChannel.invokeMethod<void>(Constants.closeOutput, id);
   }
 
