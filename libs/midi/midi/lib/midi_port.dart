@@ -95,13 +95,13 @@ class MidiDestinationPort extends MidiPort {
   @override
   Future<void> open() async {
     _connectionController.add(MidiPortConnectionState.pending);
-    await MidiPlatform.instance.openInput(id);
+    await MidiPlatform.instance.openDestination(id);
     _connectionController.add(MidiPortConnectionState.open);
   }
 
   @override
   Future<void> close() async {
-    await MidiPlatform.instance.closeInput(id);
+    await MidiPlatform.instance.closeDestination(id);
     _connectionController.add(MidiPortConnectionState.closed);
   }
 
@@ -122,13 +122,13 @@ class MidiSourcePort extends MidiPort {
   @override
   Future<void> open() async {
     _connectionController.add(MidiPortConnectionState.pending);
-    await MidiPlatform.instance.openOutput(id);
+    await MidiPlatform.instance.openSource(id);
     _connectionController.add(MidiPortConnectionState.open);
   }
 
   @override
   Future<void> close() async {
-    await MidiPlatform.instance.closeOutput(id);
+    await MidiPlatform.instance.closeSource(id);
     _connectionController.add(MidiPortConnectionState.closed);
   }
 

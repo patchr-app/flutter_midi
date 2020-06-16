@@ -6,14 +6,14 @@ public class Constants {
   public static final String MESSAGE_CHANNEL_NAME = "com.synthfeeder/midi/messages";
 
 
-  public static final String GET_INPUTS = "getInputs";
-  public static final String GET_OUTPUTS = "getOutputs";
+  public static final String GET_DESTINATIONS = "getDestinations";
+  public static final String GET_SOURCES = "getSources";
 
-  public static final String OPEN_INPUT = "openInput";
-  public static final String OPEN_OUTPUT = "openOutput";
+  public static final String OPEN_DESTINATION = "openDestination";
+  public static final String OPEN_SOURCE = "openSource";
 
-  public static final String CLOSE_INPUT = "closeInput";
-  public static final String CLOSE_OUTPUT = "closeOutput";
+  public static final String CLOSE_DESTINATION = "closeDestination";
+  public static final String CLOSE_SOURCE = "closeSource";
 
   public static final String SEND = "send";
 
@@ -30,8 +30,8 @@ public class Constants {
   public static final String PORT = "port";
   public static final String DATA = "data";
 
-  public static final String INPUT = "i";
-  public static final String OUTPUT = "o";
+  public static final String DESTINATION = "d";
+  public static final String SOURCE = "s";
   public static final String NUMBER = "number";
 
   public static final String TYPE = "type";

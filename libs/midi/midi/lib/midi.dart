@@ -27,7 +27,7 @@ class Midi {
   @deprecated
   Future<List<MidiDestinationPort>> get inputs async {
     final List<Map<dynamic, dynamic>> info =
-        await MidiPlatform.instance.getInputs();
+        await MidiPlatform.instance.getDestinations();
 
     return info.map((Map<dynamic, dynamic> device) {
       return MidiDestinationPort(device[Constants.id],
@@ -42,7 +42,7 @@ class Midi {
   @deprecated
   Future<List<MidiSourcePort>> get outputs async {
     final List<Map<dynamic, dynamic>> info =
-        await MidiPlatform.instance.getOutputs();
+        await MidiPlatform.instance.getSources();
 
     return info.map((Map<dynamic, dynamic> device) {
       return MidiSourcePort(device[Constants.id],

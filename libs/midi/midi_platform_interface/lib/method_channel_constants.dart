@@ -3,14 +3,14 @@ class Constants {
   static const String deviceChannelName = 'com.synthfeeder/midi/devices';
   static const String messageChannelName = 'com.synthfeeder/midi/messages';
 
-  static const String getInputs = 'getInputs';
-  static const String getOutputs = 'getOutputs';
+  static const String getDestinations = 'getDestinations';
+  static const String getSources = 'getSources';
 
-  static const String openInput = 'openInput';
-  static const String closeInput = 'closeInput';
+  static const String openDestination = 'openDestination';
+  static const String openSource = 'openSource';
 
-  static const String openOutput = 'openOutput';
-  static const String closeOutput = 'closeOutput';
+  static const String closeDestination = 'closeDestination';
+  static const String closeSource = 'closeSource';
 
   static const String send = 'send';
 
@@ -26,6 +26,6 @@ class Constants {
   static const String disconnected = 'disconnected';
   static const String type = 'type';
 
-  static const String input = 'i';
-  static const String output = 'o';
+  static const String destination = 'd';
+  static const String source = 's';
 }

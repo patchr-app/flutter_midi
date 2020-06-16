@@ -64,8 +64,8 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
 
   HashMap<Integer, MidiDeviceInfo> connectedDevices = new HashMap<Integer, MidiDeviceInfo>();
   HashMap<Integer, MidiDevice> activeDevices = new HashMap<Integer, MidiDevice>();
-  HashMap<String, MidiInputPort> activeInputs = new HashMap<String, MidiInputPort>();
-  HashMap<String, MidiOutputPort> activeOutputs = new HashMap<String, MidiOutputPort>();
+  HashMap<String, MidiInputPort> activeDestinations = new HashMap<String, MidiInputPort>();
+  HashMap<String, MidiOutputPort> activeSources = new HashMap<String, MidiOutputPort>();
 
   /**
    * Plugin registration.
@@ -81,18 +81,18 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
 
   @Override
   public void onMethodCall(MethodCall call, Result result) {
-    if (call.method.equals(Constants.GET_INPUTS)) {
-      this.getInputs(call, result);
-    } else if (call.method.equals(Constants.GET_OUTPUTS)) {
-      this.getOutputs(call, result);
-    } else if (call.method.equals(Constants.OPEN_INPUT)) {
-      this.openInput(call, result);
-    } else if (call.method.equals(Constants.OPEN_OUTPUT)) {
-      this.openOutput(call, result);
-    } else if (call.method.equals(Constants.CLOSE_INPUT)) {
-      this.closeInput(call, result);
-    } else if (call.method.equals(Constants.CLOSE_OUTPUT)) {
-      this.closeOutput(call, result);
+    if (call.method.equals(Constants.GET_DESTINATIONS)) {
+      this.getDestinations(call, result);
+    } else if (call.method.equals(Constants.GET_SOURCES)) {
+      this.getSources(call, result);
+    } else if (call.method.equals(Constants.OPEN_DESTINATION)) {
+      this.openDestination(call, result);
+    } else if (call.method.equals(Constants.OPEN_SOURCE)) {
+      this.openSource(call, result);
+    } else if (call.method.equals(Constants.CLOSE_DESTINATION)) {
+      this.closeDestination(call, result);
+    } else if (call.method.equals(Constants.CLOSE_SOURCE)) {
+      this.closeSource(call, result);
     } else if (call.method.equals(Constants.SEND)) {
       this.send(call, result);
     } else {
@@ -100,7 +100,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     }
   }
 
-  private void getInputs(MethodCall call, Result result) {
+  private void getDestinations(MethodCall call, Result result) {
     MidiDeviceInfo[] devices = this.midi.getDevices();
     ArrayList<Map> portList = new ArrayList();
     for (MidiDeviceInfo d : devices) {
@@ -115,7 +115,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     result.success(portList);
   }
 
-  private void getOutputs(MethodCall call, Result result) {
+  private void getSources(MethodCall call, Result result) {
     MidiDeviceInfo[] devices = this.midi.getDevices();
     ArrayList<Map> portList = new ArrayList();
     for (MidiDeviceInfo d : devices) {
@@ -128,17 +128,17 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     result.success(portList);
   }
 
-  private void openInput(MethodCall call, final Result result) {
+  private void openDestination(MethodCall call, final Result result) {
     final String id = (String) call.arguments;
     final int deviceId = this.getDeviceId(id);
     final int portId = this.getPortId(id);
     // already connected, do nothing
-    if (activeInputs.containsKey(id)) {
+    if (activeDestinations.containsKey(id)) {
       result.success(id);
     } else {
       if (activeDevices.containsKey(deviceId)) {
         MidiInputPort p = activeDevices.get(deviceId).openInputPort(portId);
-        this.activeInputs.put(id, p);
+        this.activeDestinations.put(id, p);
         result.success(id);
       } else {
         this.midi.openDevice(this.connectedDevices.get(deviceId), new MidiManager.OnDeviceOpenedListener() {
@@ -146,7 +146,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
           public void onDeviceOpened(MidiDevice device) {
             activeDevices.put(deviceId, device);
             MidiInputPort p = device.openInputPort(portId);
-            activeInputs.put(id, p);
+            activeDestinations.put(id, p);
             MethodResultWrapper wrapper = new MethodResultWrapper(result);
             wrapper.success(id);
           }
@@ -155,12 +155,12 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     }
   }
 
-  private void openOutput(MethodCall call, final Result result) {
+  private void openSource(MethodCall call, final Result result) {
     final String id = (String) call.arguments;
     final int deviceId = this.getDeviceId(id);
     final int portId = this.getPortId(id);
     // already connected, do nothing
-    if (activeOutputs.containsKey(id)) {
+    if (activeSources.containsKey(id)) {
       result.success(id);
     } else {
       final EventSinkWrapper wrapper = new EventSinkWrapper(midiDataSink);
@@ -179,7 +179,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
             }
           }
         });
-        this.activeOutputs.put(id, p);
+        this.activeSources.put(id, p);
         result.success(id);
       } else {
         this.midi.openDevice(this.connectedDevices.get(deviceId), new MidiManager.OnDeviceOpenedListener() {
@@ -200,7 +200,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
                 }
               }
             });
-            activeOutputs.put(id, p);
+            activeSources.put(id, p);
             result.success(id);
           }
         }, null);
@@ -208,14 +208,14 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     }
   }
 
-  private void closeOutput(MethodCall call, final Result result) {
+  private void closeSource(MethodCall call, final Result result) {
     final String id = (String) call.arguments;
-    MidiOutputPort port = activeOutputs.get(id);
+    MidiOutputPort port = activeSources.get(id);
     try {
 
       if (port != null) {
         port.close();
-        activeOutputs.remove(id);
+        activeSources.remove(id);
         result.success(id);
       } else {
         result.error(Constants.ERR_NOT_OPEN, "Output Port " + id + " not open", null);
@@ -225,14 +225,14 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     }
   }
 
-  private void closeInput(MethodCall call, final Result result) {
+  private void closeDestination(MethodCall call, final Result result) {
     final String id = (String) call.arguments;
-    MidiInputPort port = activeInputs.get(id);
+    MidiInputPort port = activeDestinations.get(id);
     try {
 
       if (port != null) {
         port.close();
-        activeInputs.remove(id);
+        activeDestinations.remove(id);
         result.success(id);
       } else {
         result.error(Constants.ERR_NOT_OPEN, "Input Port " + id + " not open", null);
@@ -244,7 +244,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
 
   private void send(MethodCall call, final Result result) {
     final String id = (String) ((Map<String, ?>) call.arguments).get(Constants.PORT);
-    MidiInputPort port = activeInputs.get(id);
+    MidiInputPort port = activeDestinations.get(id);
     try {
       if (port != null) {
         byte[] data = (byte[]) ((Map<String, ?>) call.arguments).get(Constants.DATA);
@@ -279,7 +279,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
    * @return
    */
   private String buildId(MidiDeviceInfo d, MidiDeviceInfo.PortInfo p) {
-    return (p.getType() == MidiDeviceInfo.PortInfo.TYPE_INPUT ? Constants.INPUT : Constants.OUTPUT) + ":" + d.getId()
+    return (p.getType() == MidiDeviceInfo.PortInfo.TYPE_INPUT ? Constants.DESTINATION : Constants.SOURCE) + ":" + d.getId()
         + ":" + p.getPortNumber();
   }
 
@@ -290,7 +290,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
     m.put(Constants.MANUFACTURER, deviceProps.getString(MidiDeviceInfo.PROPERTY_MANUFACTURER));
     m.put(Constants.VERSION, deviceProps.getString(MidiDeviceInfo.PROPERTY_VERSION));
     m.put(Constants.NUMBER, p.getPortNumber());
-    m.put(Constants.TYPE, p.getType() == MidiDeviceInfo.PortInfo.TYPE_INPUT ? Constants.INPUT : Constants.OUTPUT);
+    m.put(Constants.TYPE, p.getType() == MidiDeviceInfo.PortInfo.TYPE_INPUT ? Constants.DESTINATION : Constants.SOURCE);
     m.put(Constants.NAME, p.getName().length() > 0 ? p.getName()
         : deviceProps.getString(MidiDeviceInfo.PROPERTY_PRODUCT) + " " + p.getPortNumber());
 
@@ -301,6 +301,7 @@ public class MidiPlugin implements MethodCallHandler, EventChannel.StreamHandler
   public void onListen(Object o, final EventChannel.EventSink eventSink) {
     this.deviceCallback = new MidiManager.DeviceCallback() {
       EventSinkWrapper wrapper = new EventSinkWrapper(eventSink);
+
       @Override
       public void onDeviceAdded(MidiDeviceInfo device) {
         connectedDevices.put(device.getId(), device);
