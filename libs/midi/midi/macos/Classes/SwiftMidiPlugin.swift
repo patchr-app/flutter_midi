@@ -49,22 +49,15 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
   // final int number;
   func getDestinations(call: FlutterMethodCall, result: FlutterResult) {
     var ports: Array<Dictionary<String, Any>> = [];
-    let count: Int = MIDIGetNumberOfDestinations();
-    for i in 0 ..< count {
+    
+    for (id, port) in midiAccess.outputs {
       var properties: Dictionary<String, Any> = [:]
-      var param: Unmanaged<CFString>?
-      let endpoint:MIDIEndpointRef = MIDIGetDestination(i);
-      properties[Constants.NUMBER] = i;
-      MIDIObjectGetStringProperty(endpoint, kMIDIPropertyManufacturer, &param)
-      properties[Constants.MANUFACTURER] = param!.takeRetainedValue() as String
-      MIDIObjectGetStringProperty(endpoint, kMIDIPropertyName, &param)
-      properties[Constants.NAME] = param!.takeRetainedValue() as String
-      MIDIObjectGetStringProperty(endpoint, kMIDIPropertyDriverVersion, &param)
-      properties[Constants.VERSION] = param!.takeRetainedValue() as String
-      
-      MIDIObjectGetStringProperty(endpoint, kMIDIPropertyUniqueID, &param)
-      properties[Constants.ID] = param!.takeRetainedValue() as String
-      ports.append(properties);
+      properties[Constants.NUMBER] = port.id;
+      properties[Constants.ID] = buildId(port : port);
+      properties[Constants.MANUFACTURER] = port.manufacturer;
+      properties[Constants.NAME] = port.displayName;
+      //properties[Constants.VERSION] = port.version;
+      ports.append(properties)
     }
     result(ports);
   }
@@ -107,4 +100,12 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
   func send(call: FlutterMethodCall, result: FlutterResult) {
     result(Void());
   }
+  
+  func buildId(port: MIDIPort) -> String {
+    return String(port.id);
+  }
+  func getPortId(id: String) -> Int {
+    return Int(id) ?? 0
+  }
+  
 }
