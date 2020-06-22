@@ -30,10 +30,48 @@ public class MidiEventPublisher: FlutterStreamHandler {
       print("not sending")
     }
   }
-  
-  
 }
+public class DeviceEventPublisher: FlutterStreamHandler {
+  var sendEvents: Bool = false
+  var eventSink: FlutterEventSink?
+  
+  public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+    eventSink = events;
+    sendEvents = true;
+    return nil
+  }
+  
+  public func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    sendEvents = false;
+    return nil
+  }
+  
+  public func onChange(port: MIDIPort) {
+    guard let eventSink = eventSink else {
+      return
+    }
+    if (!sendEvents) {
+      return
+    }
+    
+    let info: Dictionary<String, Any> = [
+      Constants.ID: buildId(port : port),
+      Constants.STATE: port.state == .connected ? Constants.CONNECTED : Constants.DISCONNECTED,
+      Constants.PORT: [
+        Constants.NUMBER: port.id,
+        Constants.ID: buildId(port : port),
+        Constants.MANUFACTURER: port.manufacturer,
+        Constants.NAME: port.displayName,
+        Constants.TYPE: port.type == .input ? Constants.SOURCE : Constants.DESTINATION
+      ]
+    ]
+    eventSink(info)
+  }
+  func buildId(port: MIDIPort) -> String {
+    return String(port.id);
+  }
 
+}
 public class SwiftMidiPlugin: NSObject, FlutterPlugin {
 
   var methodChannel: FlutterMethodChannel;
@@ -44,7 +82,7 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
   
   var sendMidiData: Bool = false;
   var messagePublisher: MidiEventPublisher = MidiEventPublisher();
-  
+  var devicePublisher: DeviceEventPublisher = DeviceEventPublisher();
   
   public static func register(with registrar: FlutterPluginRegistrar) {
     let methodChannel = FlutterMethodChannel(name: Constants.METHOD_CHANNEL_NAME, binaryMessenger: registrar.messenger)
@@ -61,8 +99,14 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
     self.deviceEventChannel = deviceEventChannel;
     self.midiDataChannel = midiDataChannel;
     midiDataChannel.setStreamHandler(messagePublisher as? FlutterStreamHandler & NSObjectProtocol)
-    self.midiAccess = MIDIAccess();
-    super.init();
+    deviceEventChannel.setStreamHandler(devicePublisher as? FlutterStreamHandler & NSObjectProtocol)
+    self.midiAccess = MIDIAccess()
+    
+
+    super.init()
+    self.midiAccess.onStateChange = { (port: MIDIPort) in
+      self.devicePublisher.onChange(port: port)
+    }
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -154,10 +198,7 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
     let id = getPortId(id: args[Constants.PORT] as! String)
     let data = args[Constants.DATA] as! FlutterStandardTypedData;
     let port: MIDIOutput?  = midiAccess.outputs[id]
-    print(port?.displayName);
-    print(data.data);
     port?.send(data.data)
-    
   }
   
   func buildId(port: MIDIPort) -> String {
