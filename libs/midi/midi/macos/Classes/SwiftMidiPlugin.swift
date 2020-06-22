@@ -150,7 +150,14 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
   }
   
   func send(call: FlutterMethodCall, result: FlutterResult) {
-    result(Void());
+    let args: Dictionary<String, Any> = call.arguments as! Dictionary<String, Any>;
+    let id = getPortId(id: args[Constants.PORT] as! String)
+    let data = args[Constants.DATA] as! FlutterStandardTypedData;
+    let port: MIDIOutput?  = midiAccess.outputs[id]
+    print(port?.displayName);
+    print(data.data);
+    port?.send(data.data)
+    
   }
   
   func buildId(port: MIDIPort) -> String {
