@@ -134,7 +134,10 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
   }
 
   func closeDestination(call: FlutterMethodCall, result: FlutterResult) {
-    result(Void());
+    let id = getPortId(id: call.arguments as! String)
+    let port: MIDIOutput?  = midiAccess.outputs[id]
+    port?.close()
+    result(call.arguments as! String);
   }
   
   func closeSource(call: FlutterMethodCall, result: FlutterResult) {
