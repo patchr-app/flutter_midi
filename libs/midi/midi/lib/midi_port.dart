@@ -89,8 +89,8 @@ class MidiDestinationPort extends MidiPort {
         );
 
   @override
-  bool operator ==(other) =>
-      other is MidiDestinationPort && this.id == other.id;
+  bool operator ==(dynamic other) =>
+      other is MidiDestinationPort && id == other.id;
 
   @override
   Future<void> open() async {
@@ -109,6 +109,9 @@ class MidiDestinationPort extends MidiPort {
   Future<void> send(Uint8List message) {
     return MidiPlatform.instance.send(id, message);
   }
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 class MidiSourcePort extends MidiPort {
@@ -136,7 +139,7 @@ class MidiSourcePort extends MidiPort {
     return MidiPlatform.instance
         .midiMessages()
         .where((dynamic data) => data[Constants.port] == id)
-        .map((dynamic data) => data[Constants.data] as Uint8List)
+        .map<Uint8List>((dynamic data) => data[Constants.data])
         .transform(MessageSplitter());
   }
 }
