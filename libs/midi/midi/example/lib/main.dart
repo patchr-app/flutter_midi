@@ -37,11 +37,11 @@ class MidiExampleState extends State<MidiExample> {
               items: const [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.file_upload),
-                  title: Text('Destinations'),
+                  label: 'Destinations',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.file_download),
-                  title: Text('Sources'),
+                  label: 'Sources',
                 ),
               ],
             ),
