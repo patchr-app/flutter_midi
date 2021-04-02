@@ -70,7 +70,7 @@ await p.open();
 Stream<Uint8List> data = p.messages;
 
 await for (message in data) {
-  print(data);
+  print(message);
 }
 ```
 
@@ -81,6 +81,18 @@ Stream<Uint8List> data = p.messages.where( excludeClock );
 
 await for (message in data) {
   // awesome, no more clock messages
-  print(data);
+  print(message);
+}
+```
+
+## Listening to device changes
+
+In a typical MIDI environment, devices can be connected and disconnected at any time. the `getSources` and `getDestinations` methods give you the list of devices _currently_ connected. If you wish to listen to changes, you can subscribe to [ConnectionEvent]s:
+
+```dart
+Stream<ConnectionEvent> changes = midi.onDevicesChanged;
+
+await for (event in changes) {
+  print(event);
 }
 ```
