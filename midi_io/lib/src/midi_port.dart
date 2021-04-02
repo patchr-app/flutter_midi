@@ -77,7 +77,7 @@ abstract class MidiPort {
   Stream<MidiPortDeviceState> get state => _stateController.stream;
 
   /// The ID of this midi device
-  final String? id;
+  final String id;
 
   /// The manufacturer
   final String? manufacturer;
@@ -112,7 +112,7 @@ abstract class MidiPort {
 /// A midi port for sending data to
 class MidiDestinationPort extends MidiPort {
   MidiDestinationPort(
-    String? id, {
+    String id, {
     String? manufacturer,
     String? name,
     String? version,
@@ -129,19 +129,19 @@ class MidiDestinationPort extends MidiPort {
   @override
   Future<void> open() async {
     _connectionController.add(MidiPortConnectionState.pending);
-    await MidiPlatform.instance.openDestination(id!);
+    await MidiPlatform.instance.openDestination(id);
     _connectionController.add(MidiPortConnectionState.open);
   }
 
   @override
   Future<void> close() async {
-    await MidiPlatform.instance.closeDestination(id!);
+    await MidiPlatform.instance.closeDestination(id);
     _connectionController.add(MidiPortConnectionState.closed);
   }
 
   /// Send data do this midi port
   Future<void> send(Uint8List message) {
-    return MidiPlatform.instance.send(id!, message);
+    return MidiPlatform.instance.send(id, message);
   }
 
   @override
@@ -154,7 +154,7 @@ class MidiDestinationPort extends MidiPort {
 
 /// A [MidiPort] for reading data from.
 class MidiSourcePort extends MidiPort {
-  MidiSourcePort(String? id,
+  MidiSourcePort(String id,
       {String? manufacturer, String? name, String? version})
       : super(id,
             manufacturer: manufacturer,
@@ -165,13 +165,13 @@ class MidiSourcePort extends MidiPort {
   @override
   Future<void> open() async {
     _connectionController.add(MidiPortConnectionState.pending);
-    await MidiPlatform.instance.openSource(id!);
+    await MidiPlatform.instance.openSource(id);
     _connectionController.add(MidiPortConnectionState.open);
   }
 
   @override
   Future<void> close() async {
-    await MidiPlatform.instance.closeSource(id!);
+    await MidiPlatform.instance.closeSource(id);
     _connectionController.add(MidiPortConnectionState.closed);
   }
 
