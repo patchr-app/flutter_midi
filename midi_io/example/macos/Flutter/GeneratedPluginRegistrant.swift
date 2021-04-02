@@ -7,7 +7,7 @@
 import FlutterMacOS
 import Foundation
 
-import midi
+import midi_io
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   MidiPlugin.register(with: registry.registrar(forPlugin: "MidiPlugin"))
