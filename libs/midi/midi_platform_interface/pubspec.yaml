@@ -1,17 +1,17 @@
 name: midi_platform_interface
 description: Platform interface for the midi plugin
 version: 0.0.2
-homepage: https://synthfeeder.com
+homepage: https://patchr.app
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
   flutter: ">=1.9.1+hotfix.4 <2.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  meta: ^1.1.8
-  plugin_platform_interface: ^1.0.1
+  meta: ^1.3.0
+  plugin_platform_interface: ^2.0.0
 
 dev_dependencies:
   flutter_test:

@@ -13,8 +13,8 @@ enum MidiPortType {
 
 class MidiMessage {
   MidiMessage({this.data, this.timestamp});
-  final Uint8List data;
-  final double timestamp;
+  final Uint8List? data;
+  final double? timestamp;
 }
 
 abstract class MidiPort {
@@ -52,14 +52,14 @@ abstract class MidiPort {
       _connectionController.stream;
   Stream<MidiPortDeviceState> get state => _stateController.stream;
 
-  final String id;
-  final String manufacturer;
-  final String name;
-  final MidiPortType type;
-  final String version;
-  final int number;
+  final String? id;
+  final String? manufacturer;
+  final String? name;
+  final MidiPortType? type;
+  final String? version;
+  final int? number;
 
-  StreamSubscription<dynamic> _events;
+  late StreamSubscription<dynamic> _events;
 
   void dispose() {
     _connectionController.close();
@@ -74,11 +74,11 @@ abstract class MidiPort {
 /// A midi port for sending data to
 class MidiDestinationPort extends MidiPort {
   MidiDestinationPort(
-    String id, {
-    String manufacturer,
-    String name,
-    String version,
-    int number,
+    String? id, {
+    String? manufacturer,
+    String? name,
+    String? version,
+    int? number,
   }) : super(
           id,
           manufacturer: manufacturer,
@@ -91,19 +91,19 @@ class MidiDestinationPort extends MidiPort {
   @override
   Future<void> open() async {
     _connectionController.add(MidiPortConnectionState.pending);
-    await MidiPlatform.instance.openDestination(id);
+    await MidiPlatform.instance.openDestination(id!);
     _connectionController.add(MidiPortConnectionState.open);
   }
 
   @override
   Future<void> close() async {
-    await MidiPlatform.instance.closeDestination(id);
+    await MidiPlatform.instance.closeDestination(id!);
     _connectionController.add(MidiPortConnectionState.closed);
   }
 
   /// Send data do this midi port
   Future<void> send(Uint8List message) {
-    return MidiPlatform.instance.send(id, message);
+    return MidiPlatform.instance.send(id!, message);
   }
 
   @override
@@ -115,7 +115,7 @@ class MidiDestinationPort extends MidiPort {
 }
 
 class MidiSourcePort extends MidiPort {
-  MidiSourcePort(String id, {String manufacturer, String name, String version})
+  MidiSourcePort(String? id, {String? manufacturer, String? name, String? version})
       : super(id,
             manufacturer: manufacturer,
             name: name,
@@ -125,13 +125,13 @@ class MidiSourcePort extends MidiPort {
   @override
   Future<void> open() async {
     _connectionController.add(MidiPortConnectionState.pending);
-    await MidiPlatform.instance.openSource(id);
+    await MidiPlatform.instance.openSource(id!);
     _connectionController.add(MidiPortConnectionState.open);
   }
 
   @override
   Future<void> close() async {
-    await MidiPlatform.instance.closeSource(id);
+    await MidiPlatform.instance.closeSource(id!);
     _connectionController.add(MidiPortConnectionState.closed);
   }
 
@@ -139,7 +139,7 @@ class MidiSourcePort extends MidiPort {
     return MidiPlatform.instance
         .midiMessages()
         .where((dynamic data) => data[Constants.port] == id)
-        .map<Uint8List>((dynamic data) => data[Constants.data])
+        .map<Uint8List?>((dynamic data) => data[Constants.data])
         .transform(MessageSplitter());
   }
 

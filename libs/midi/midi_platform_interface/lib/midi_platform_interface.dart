@@ -32,11 +32,11 @@ abstract class MidiPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<List<Map<dynamic, dynamic>>> getDestinations() {
+  Future<List<Map<dynamic, dynamic>>?> getDestinations() {
     throw UnimplementedError('getDestinations() has not been implemented.');
   }
 
-  Future<List<Map<dynamic, dynamic>>> getSources() {
+  Future<List<Map<dynamic, dynamic>>?> getSources() {
     throw UnimplementedError('getSources() has not been implemented.');
   }
 

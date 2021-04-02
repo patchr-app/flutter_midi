@@ -15,7 +15,7 @@ part './midi_port.dart';
 class Midi {
   Future<List<MidiSourcePort>> getSources() async {
     final List<Map<dynamic, dynamic>> info =
-        await MidiPlatform.instance.getSources();
+        await (MidiPlatform.instance.getSources() as FutureOr<List<Map<dynamic, dynamic>>>);
 
     return info.map((Map<dynamic, dynamic> device) {
       return MidiSourcePort(device[Constants.id],
@@ -27,7 +27,7 @@ class Midi {
 
   Future<List<MidiDestinationPort>> getDestinations() async {
     final List<Map<dynamic, dynamic>> info =
-        await MidiPlatform.instance.getDestinations();
+        await (MidiPlatform.instance.getDestinations() as FutureOr<List<Map<dynamic, dynamic>>>);
 
     return info.map((Map<dynamic, dynamic> device) {
       return MidiDestinationPort(device[Constants.id],

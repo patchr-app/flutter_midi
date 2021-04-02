@@ -7,10 +7,10 @@ enum MidiPortDeviceState {
 
 class ConnectionEvent {
   ConnectionEvent({
-    @required this.id,
-    @required this.state,
-    @required this.type,
-    @required this.port,
+    required this.id,
+    required this.state,
+    required this.type,
+    required this.port,
   });
 
   factory ConnectionEvent.fromMap(Map<dynamic, dynamic> data) {
@@ -34,7 +34,7 @@ class ConnectionEvent {
             : MidiPortDeviceState.disconnected);
   }
 
-  final String id;
+  final String? id;
   final MidiPortDeviceState state;
   final MidiPortType type;
   final MidiPort port;
