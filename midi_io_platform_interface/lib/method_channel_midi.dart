@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
-import 'package:midi_platform_interface/method_channel_constants.dart';
+import 'package:midi_io_platform_interface/method_channel_constants.dart';
 
-import 'midi_platform_interface.dart';
+import 'midi_io_platform_interface.dart';
 
 /// Method channel used for all midi related stuff
 const MethodChannel _methodChannel = MethodChannel(Constants.methodChannelName);

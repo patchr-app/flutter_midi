@@ -1,5 +1,5 @@
-name: midi_platform_interface
-description: Platform interface for the midi plugin
+name: midi_io_platform_interface
+description: Platform interface for the Midi IO plugin
 version: 1.0.0
 homepage: https://patchr.app
 

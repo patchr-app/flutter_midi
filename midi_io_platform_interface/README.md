@@ -1,14 +1,14 @@
 # midi_platform_interface
 
-A common platform interface for the midi plugin.
+A common platform interface for the Midi IO plugin.
 
-This interface allows platform-specific implementations of the `midi`
+This interface allows platform-specific implementations of the `midi_io`
 plugin, as well as the plugin itself, to ensure they are supporting the
 same interface.
 
 # Usage
 
-To implement a new platform-specific implementation of `midi`, extend
+To implement a new platform-specific implementation of `midi_io`, extend
 `MidiPlatform` with an implementation that performs the
 platform-specific behavior, and when you register your plugin, set the default
 `MidiPlatform` by calling
@@ -21,4 +21,3 @@ over breaking changes for this package.
 
 See https://flutter.dev/go/platform-interface-breaking-changes for a discussion
 on why a less-clean interface is preferable to a breaking change.
-
