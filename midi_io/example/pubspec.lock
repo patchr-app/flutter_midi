@@ -84,9 +84,9 @@ packages:
   midi_io_platform_interface:
     dependency: transitive
     description:
-      path: "../../midi_io_platform_interface"
-      relative: true
-    source: path
+      name: midi_io_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "1.0.0"
   path:
     dependency: transitive

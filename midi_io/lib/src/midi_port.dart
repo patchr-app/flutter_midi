@@ -5,23 +5,39 @@ import 'package:midi_io_platform_interface/midi_io_platform_interface.dart';
 import 'connection_event.dart';
 import 'message_splitter.dart';
 
+/// The connection state of a [MidiPort]
 enum MidiPortConnectionState {
+  /// The port is open and available for reading/writing
   open,
+
+  /// The port is closed
   closed,
+
+  /// A connection attempt is in progress
   pending,
 }
 
+/// The type of [MidiPort]
 enum MidiPortType {
   destination,
   source,
 }
 
+/// A midi message
 class MidiMessage {
-  MidiMessage({this.data, this.timestamp});
+  MidiMessage({
+    this.data,
+    this.timestamp,
+  });
+
+  /// The data contained in this message
   final Uint8List? data;
+
+  /// The timestamp of the message
   final double? timestamp;
 }
 
+/// Base class for Midi ports
 abstract class MidiPort {
   MidiPort(
     this.id, {
@@ -53,15 +69,29 @@ abstract class MidiPort {
   final StreamController<MidiPortDeviceState> _stateController =
       StreamController<MidiPortDeviceState>.broadcast();
 
+  /// Stream for listening to [MidiPortConnectionState] changes
   Stream<MidiPortConnectionState> get connection =>
       _connectionController.stream;
+
+  /// Stream for listening to [MidiPortDeviceState] changes
   Stream<MidiPortDeviceState> get state => _stateController.stream;
 
+  /// The ID of this midi device
   final String? id;
+
+  /// The manufacturer
   final String? manufacturer;
+
+  /// The displayable name of the device
   final String? name;
+
+  /// Whether this is an input or output port
   final MidiPortType? type;
+
+  /// Device firmware version
   final String? version;
+
+  /// Port number
   final int? number;
 
   late StreamSubscription<dynamic> _events;
@@ -72,7 +102,10 @@ abstract class MidiPort {
     _events.cancel();
   }
 
+  /// Close this MidiPort
   Future<void> close();
+
+  /// Attempt to open a connection to this MidiPort
   Future<void> open();
 }
 
@@ -119,6 +152,7 @@ class MidiDestinationPort extends MidiPort {
   int get hashCode => id.hashCode;
 }
 
+/// A [MidiPort] for reading data from.
 class MidiSourcePort extends MidiPort {
   MidiSourcePort(String? id,
       {String? manufacturer, String? name, String? version})
@@ -141,6 +175,7 @@ class MidiSourcePort extends MidiPort {
     _connectionController.add(MidiPortConnectionState.closed);
   }
 
+  /// The stream of Midi messages originating from this source port.
   Stream<Uint8List> get messages {
     return MidiPlatform.instance
         .midiMessages()
