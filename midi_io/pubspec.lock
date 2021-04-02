@@ -74,10 +74,10 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.0"
-  midi_platform_interface:
+  midi_io_platform_interface:
     dependency: "direct main"
     description:
-      path: "../midi_platform_interface"
+      path: "../midi_io_platform_interface"
       relative: true
     source: path
     version: "1.0.0"

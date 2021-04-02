@@ -1,4 +1,10 @@
-part of midi;
+import 'dart:async';
+import 'dart:typed_data';
+
+import 'package:midi_io_platform_interface/midi_io_platform_interface.dart';
+import 'connection_event.dart';
+import 'constants.dart';
+import 'message_splitter.dart';
 
 enum MidiPortConnectionState {
   open,
@@ -115,7 +121,8 @@ class MidiDestinationPort extends MidiPort {
 }
 
 class MidiSourcePort extends MidiPort {
-  MidiSourcePort(String? id, {String? manufacturer, String? name, String? version})
+  MidiSourcePort(String? id,
+      {String? manufacturer, String? name, String? version})
       : super(id,
             manufacturer: manufacturer,
             name: name,

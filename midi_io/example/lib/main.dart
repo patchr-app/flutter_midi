@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:midi/midi.dart';
+import 'package:midi_io/midi_io.dart';
 import 'package:provider/provider.dart';
 
 import './destinations_tab.dart';

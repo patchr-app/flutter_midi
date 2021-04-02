@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:midi/midi.dart';
+import 'package:midi_io/midi_io.dart';
 import 'package:provider/provider.dart';
 import 'source_port.dart';
 

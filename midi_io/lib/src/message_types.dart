@@ -1,5 +1,3 @@
-part of midi;
-
 const int CLOCK_MESSAGE = 0xf8;
 const int NOTE_OFF = 0x80;
 const int NOTE_ON = 0x90;

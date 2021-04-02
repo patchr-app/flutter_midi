@@ -1,4 +1,8 @@
-part of midi;
+import 'dart:async';
+
+import 'dart:typed_data';
+
+import 'message_types.dart';
 
 /// Converts a stream of raw midi data into discreet midi messages
 class MessageSplitter extends StreamTransformerBase<Uint8List, Uint8List> {

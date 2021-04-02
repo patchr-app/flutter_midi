@@ -1,21 +1,14 @@
-library midi;
-
 import 'dart:async';
-import 'dart:typed_data';
-import 'package:meta/meta.dart';
-import 'package:midi_platform_interface/midi_platform_interface.dart';
+import 'package:midi_io_platform_interface/midi_io_platform_interface.dart';
 
-part './connection_event.dart';
-part './constants.dart';
-part './message_filters.dart';
-part './message_splitter.dart';
-part './message_types.dart';
-part './midi_port.dart';
+import 'connection_event.dart';
+import 'constants.dart';
+import 'midi_port.dart';
 
 class Midi {
   Future<List<MidiSourcePort>> getSources() async {
-    final List<Map<dynamic, dynamic>> info =
-        await (MidiPlatform.instance.getSources() as FutureOr<List<Map<dynamic, dynamic>>>);
+    final List<Map<dynamic, dynamic>> info = await (MidiPlatform.instance
+        .getSources() as FutureOr<List<Map<dynamic, dynamic>>>);
 
     return info.map((Map<dynamic, dynamic> device) {
       return MidiSourcePort(device[Constants.id],
@@ -26,8 +19,8 @@ class Midi {
   }
 
   Future<List<MidiDestinationPort>> getDestinations() async {
-    final List<Map<dynamic, dynamic>> info =
-        await (MidiPlatform.instance.getDestinations() as FutureOr<List<Map<dynamic, dynamic>>>);
+    final List<Map<dynamic, dynamic>> info = await (MidiPlatform.instance
+        .getDestinations() as FutureOr<List<Map<dynamic, dynamic>>>);
 
     return info.map((Map<dynamic, dynamic> device) {
       return MidiDestinationPort(device[Constants.id],

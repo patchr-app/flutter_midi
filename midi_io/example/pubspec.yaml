@@ -17,7 +17,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  midi:
+  midi_io:
     path: ../
 
   provider: ^2.0.1+1

@@ -1,5 +1,3 @@
-part of midi;
-
 class Constants {
   static const String methodChannelName = 'app.patchr/midi';
   static const String deviceChannelName = 'app.patchr/midi/devices';

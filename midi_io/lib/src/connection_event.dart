@@ -1,4 +1,5 @@
-part of midi;
+import 'constants.dart';
+import 'midi_port.dart';
 
 enum MidiPortDeviceState {
   disconnected,

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:midi/midi.dart';
+import 'package:midi_io/midi_io.dart';
 
 class SourcePortPage extends StatefulWidget {
   const SourcePortPage({this.port});
