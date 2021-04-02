@@ -96,3 +96,19 @@ await for (event in changes) {
   print(event);
 }
 ```
+
+## Contributing
+
+Contributions are welcome!
+
+- Please read and understand the Code of Conduct
+- The goal is to keep close to the WebMIDI spec
+- It's difficult to diagnose bugs when the scope of MIDI use cases is so broad. If you can provide reproducible steps, or a list of midi messages that cause problems, that's great
+
+### Android
+
+We are wrapping `android.media.midi`. In order to implement something like WebMIDI we are hiding away `MidiDevice` entirely, and only presenting ports to the user. Also keep in mind that the names of input/output in Android are the opposite of WebMIDI, which is why this package has settled on the terms `source` and `destination`.
+
+### iOS / MacOS
+
+The implementations for iOS and MacOS are identical (hey is there a way to tell Flutter to use the same code?). The implementations are based on [WebMidiKit](https://github.com/adamnemecek/WebMIDIKit), a Swift wrapper around CoreMIDI. Unfortunately WebMidiKit seems to be abandoned, and was never published to cocoapods. To work around this issue, we paste a copy of WebMidiKit into the iOS and MacOS implementation folders.
