@@ -1,3 +1,8 @@
+## 1.0.1
+
+- Fix iOS implementation
+- Document usage
+
 ## 1.0.0
 
 - Null Safety
