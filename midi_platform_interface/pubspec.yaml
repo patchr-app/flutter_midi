@@ -1,6 +1,6 @@
 name: midi_platform_interface
 description: Platform interface for the midi plugin
-version: 0.0.2
+version: 1.0.0
 homepage: https://patchr.app
 
 environment:

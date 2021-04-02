@@ -1,9 +1,9 @@
 part of midi;
 
 class Constants {
-  static const String methodChannelName = 'com.synthfeeder/midi';
-  static const String deviceChannelName = 'com.synthfeeder/midi/devices';
-  static const String messageChannelName = 'com.synthfeeder/midi/messages';
+  static const String methodChannelName = 'app.patchr/midi';
+  static const String deviceChannelName = 'app.patchr/midi/devices';
+  static const String messageChannelName = 'app.patchr/midi/messages';
 
   static const String getInputs = 'getInputs';
   static const String getOutputs = 'getOutputs';

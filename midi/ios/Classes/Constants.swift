@@ -9,9 +9,9 @@ import Foundation
 import Flutter
 
 public class Constants {
-  public static var METHOD_CHANNEL_NAME = "com.synthfeeder/midi";
-  public static var DEVICE_CHANNEL_NAME = "com.synthfeeder/midi/devices";
-  public static var MESSAGE_CHANNEL_NAME = "com.synthfeeder/midi/messages";
+  public static var METHOD_CHANNEL_NAME = "app.patchr/midi";
+  public static var DEVICE_CHANNEL_NAME = "app.patchr/midi/devices";
+  public static var MESSAGE_CHANNEL_NAME = "app.patchr/midi/messages";
   
   
   public static var GET_INPUTS = "getInputs";

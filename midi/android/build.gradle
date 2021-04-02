@@ -1,4 +1,4 @@
-group 'com.synthfeeder.midi'
+group 'app.patchr.midi'
 version '1.0-SNAPSHOT'
 
 buildscript {

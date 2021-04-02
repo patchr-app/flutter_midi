@@ -1,4 +1,4 @@
-package com.synthfeeder.midi_example;
+package app.patchr.midi_example;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;

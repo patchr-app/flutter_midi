@@ -8,7 +8,7 @@
 PRODUCT_NAME = example
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.synthfeeder.example
+PRODUCT_BUNDLE_IDENTIFIER = app.patchr.example
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2020 com.synthfeeder. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2020 Patchr.app. All rights reserved.

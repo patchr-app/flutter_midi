@@ -1,4 +1,4 @@
-package com.synthfeeder.midi;
+package app.patchr.midi;
 
 import android.media.midi.MidiReceiver;
 

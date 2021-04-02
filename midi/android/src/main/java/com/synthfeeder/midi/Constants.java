@@ -1,9 +1,9 @@
-package com.synthfeeder.midi;
+package app.patchr.midi;
 
 public class Constants {
-  public static final String METHOD_CHANNEL_NAME = "com.synthfeeder/midi";
-  public static final String DEVICE_CHANNEL_NAME = "com.synthfeeder/midi/devices";
-  public static final String MESSAGE_CHANNEL_NAME = "com.synthfeeder/midi/messages";
+  public static final String METHOD_CHANNEL_NAME = "app.patchr/midi";
+  public static final String DEVICE_CHANNEL_NAME = "app.patchr/midi/devices";
+  public static final String MESSAGE_CHANNEL_NAME = "app.patchr/midi/messages";
 
 
   public static final String GET_DESTINATIONS = "getDestinations";
