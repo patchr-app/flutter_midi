@@ -1,4 +1,4 @@
-import 'constants.dart';
+import 'package:midi_io_platform_interface/midi_io_platform_interface.dart';
 import 'midi_port.dart';
 
 enum MidiPortDeviceState {
@@ -18,7 +18,7 @@ class ConnectionEvent {
     final Map<dynamic, dynamic> port = data[Constants.port];
     return ConnectionEvent(
         id: data[Constants.id],
-        port: port[Constants.type] == Constants.input
+        port: port[Constants.type] == Constants.destination
             ? MidiDestinationPort(port[Constants.id],
                 manufacturer: port[Constants.manufacturer],
                 name: port[Constants.name],
@@ -27,7 +27,7 @@ class ConnectionEvent {
                 manufacturer: port[Constants.manufacturer],
                 name: port[Constants.name],
                 version: port[Constants.version]),
-        type: data[Constants.type] == Constants.input
+        type: data[Constants.type] == Constants.destination
             ? MidiPortType.destination
             : MidiPortType.source,
         state: data[Constants.state] == Constants.connected

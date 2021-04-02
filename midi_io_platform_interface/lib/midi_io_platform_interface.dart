@@ -5,6 +5,8 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'method_channel_midi.dart';
 
+export 'method_channel_constants.dart';
+
 /// The interface that implementations of url_launcher must implement.
 ///
 /// Platform implementations should extend this class rather than implement it as `midi`

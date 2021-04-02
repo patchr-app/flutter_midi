@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:midi_io_platform_interface/midi_io_platform_interface.dart';
 
 import 'connection_event.dart';
-import 'constants.dart';
 import 'midi_port.dart';
 
 class Midi {
@@ -28,20 +27,6 @@ class Midi {
           name: device[Constants.name],
           version: device[Constants.version]);
     }).toList();
-  }
-
-  /// Gets the midi destinationports.
-  /// Use [getDestinations] instead
-  @deprecated
-  Future<List<MidiDestinationPort>> get inputs async {
-    return getDestinations();
-  }
-
-  /// Gets the midi source ports.
-  /// Use [getSources] instead
-  @deprecated
-  Future<List<MidiSourcePort>> get outputs async {
-    return getSources();
   }
 
   Stream<ConnectionEvent> get onDevicesChanged {

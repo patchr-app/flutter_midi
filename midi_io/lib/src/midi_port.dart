@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:midi_io_platform_interface/midi_io_platform_interface.dart';
 import 'connection_event.dart';
-import 'constants.dart';
 import 'message_splitter.dart';
 
 enum MidiPortConnectionState {
