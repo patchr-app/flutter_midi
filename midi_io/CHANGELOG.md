@@ -1,4 +1,7 @@
-## 1.0.1
+## 1.0.2
+
+- Fix library name in podspec
+- ## 1.0.1
 
 - Fix iOS implementation
 - Document usage
