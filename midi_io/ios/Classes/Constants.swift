@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import FlutterMacOS
+import Flutter
 
 public class Constants {
   public static var METHOD_CHANNEL_NAME = "app.patchr/midi";

@@ -1,6 +1,6 @@
 name: midi_io
 description: Midi interface inspired by WebMIDI
-version: 1.0.2
+version: 1.0.3
 homepage: https://patchr.app
 repository: https://github.com/patchr-app/flutter_midi
 
