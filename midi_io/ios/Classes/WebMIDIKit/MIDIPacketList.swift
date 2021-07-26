@@ -14,12 +14,16 @@ extension MIDIPacketList {
     internal mutating func send(to output: MIDIOutput, offset: Double? = nil) {
 
         _ = offset.map {
+          let current = mach_absolute_time()
 
-            let current = AudioGetCurrentHostTime()
-            let _offset = AudioConvertNanosToHostTime(UInt64($0 * 1000000))
+           var tinfo = mach_timebase_info()
+           mach_timebase_info(&tinfo)
+           let timecon = Double(tinfo.numer) / Double(tinfo.denom)
+           let ticksToMs = timecon * 0.000_001
 
-            let ts = current + _offset
-            packet.timeStamp = ts
+           let ts = current + UInt64($0 / ticksToMs)
+           
+           packet.timeStamp = ts
         }
 
         OSAssert(MIDISend(output.ref, output.endpoint.ref, &self))

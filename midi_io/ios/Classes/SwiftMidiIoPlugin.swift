@@ -2,6 +2,7 @@ import Flutter
 import UIKit
 import CoreMIDI
 
+
 public class MidiEventPublisher: FlutterStreamHandler {
   var sendMidiData: Bool = false
   var midiDataSink: FlutterEventSink?
@@ -32,6 +33,8 @@ public class MidiEventPublisher: FlutterStreamHandler {
     }
   }
 }
+
+
 public class DeviceEventPublisher: FlutterStreamHandler {
   var sendEvents: Bool = false
   var eventSink: FlutterEventSink?
@@ -73,8 +76,11 @@ public class DeviceEventPublisher: FlutterStreamHandler {
   }
 
 }
-public class SwiftMidiPlugin: NSObject, FlutterPlugin {
 
+
+
+
+public class SwiftMidiIoPlugin: NSObject, FlutterPlugin {
   var methodChannel: FlutterMethodChannel;
   var deviceEventChannel: FlutterEventChannel;
   var midiDataChannel: FlutterEventChannel;
@@ -85,16 +91,7 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
   var messagePublisher: MidiEventPublisher = MidiEventPublisher();
   var devicePublisher: DeviceEventPublisher = DeviceEventPublisher();
   
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    let methodChannel = FlutterMethodChannel(name: Constants.METHOD_CHANNEL_NAME, binaryMessenger: registrar.messenger)
-    let deviceEventChannel = FlutterEventChannel(name: Constants.DEVICE_CHANNEL_NAME, binaryMessenger: registrar.messenger)
-    let messageEventChannel = FlutterEventChannel(name: Constants.MESSAGE_CHANNEL_NAME, binaryMessenger: registrar.messenger)
-
-    let instance = SwiftMidiPlugin(methodChannel: methodChannel, deviceEventChannel: deviceEventChannel, midiDataChannel: messageEventChannel)
-    registrar.addMethodCallDelegate(instance, channel: methodChannel)
-  }
-
-
+  
   init(methodChannel: FlutterMethodChannel, deviceEventChannel: FlutterEventChannel, midiDataChannel: FlutterEventChannel) {
     self.methodChannel = methodChannel;
     self.deviceEventChannel = deviceEventChannel;
@@ -109,6 +106,16 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
       self.devicePublisher.onChange(port: port)
     }
   }
+  
+  public static func register(with registrar: FlutterPluginRegistrar) {
+    let methodChannel = FlutterMethodChannel(name: Constants.METHOD_CHANNEL_NAME, binaryMessenger: registrar.messenger())
+    let deviceEventChannel = FlutterEventChannel(name: Constants.DEVICE_CHANNEL_NAME, binaryMessenger: registrar.messenger())
+    let messageEventChannel = FlutterEventChannel(name: Constants.MESSAGE_CHANNEL_NAME, binaryMessenger: registrar.messenger())
+
+    let instance = SwiftMidiIoPlugin(methodChannel: methodChannel, deviceEventChannel: deviceEventChannel, midiDataChannel: messageEventChannel)
+    registrar.addMethodCallDelegate(instance, channel: methodChannel)
+  }
+
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     
@@ -126,7 +133,7 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
       self.closeSource(call: call, result: result);
     } else if (call.method==(Constants.SEND)) {
       self.send(call: call, result: result);
-    } 
+    }
   }
   
   // final String id;
@@ -138,7 +145,7 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
   func getDestinations(call: FlutterMethodCall, result: FlutterResult) {
     var ports: Array<Dictionary<String, Any>> = [];
     
-    for (id, port) in midiAccess.outputs {
+    for (_, port) in midiAccess.outputs {
       var properties: Dictionary<String, Any> = [:]
       properties[Constants.NUMBER] = port.id;
       properties[Constants.ID] = buildId(port : port);
@@ -153,7 +160,7 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
   func getSources(call: FlutterMethodCall, result: FlutterResult) {
     var ports: Array<Dictionary<String, Any>> = [];
     
-    for (id, port) in midiAccess.inputs {
+    for (_, port) in midiAccess.inputs {
       var properties: Dictionary<String, Any> = [:]
       properties[Constants.NUMBER] = port.id;
       properties[Constants.ID] = buildId(port: port);
@@ -208,5 +215,4 @@ public class SwiftMidiPlugin: NSObject, FlutterPlugin {
   func getPortId(id: String) -> Int {
     return Int(id) ?? 0
   }
-  
 }
