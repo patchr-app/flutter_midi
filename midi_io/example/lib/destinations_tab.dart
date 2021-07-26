@@ -19,13 +19,14 @@ class DestinationsTab extends StatelessWidget {
                 AsyncSnapshot<List<MidiDestinationPort>> snapshot) =>
             ListView(
           children: snapshot.data
-              .map(
-                (MidiDestinationPort port) => ListTile(
-                  title: Text(port.name),
-                  subtitle: Text(port.manufacturer),
-                ),
-              )
-              .toList(),
+                  ?.map(
+                    (MidiDestinationPort port) => ListTile(
+                      title: Text(port.name ?? ''),
+                      subtitle: Text(port.manufacturer ?? ''),
+                    ),
+                  )
+                  .toList() ??
+              [],
         ),
       ),
     );

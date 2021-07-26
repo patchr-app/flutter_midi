@@ -1,22 +1,22 @@
 PODS:
   - Flutter (1.0.0)
-  - midi (0.0.1):
+  - midi_io (0.0.1):
     - Flutter
 
 DEPENDENCIES:
-  - Flutter (from `.symlinks/flutter/ios`)
-  - midi (from `.symlinks/plugins/midi/ios`)
+  - Flutter (from `Flutter`)
+  - midi_io (from `.symlinks/plugins/midi_io/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
-    :path: ".symlinks/flutter/ios"
-  midi:
-    :path: ".symlinks/plugins/midi/ios"
+    :path: Flutter
+  midi_io:
+    :path: ".symlinks/plugins/midi_io/ios"
 
 SPEC CHECKSUMS:
-  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  midi: 2f79f2cd6b1bf57aee032be469a262cae22e14ae
+  Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
+  midi_io: 2f983ef32edd41a80b465f696b3db5fa4503b4eb
 
-PODFILE CHECKSUM: ebd43b443038e611b86ede96e613bd6033c49497
+PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
 
-COCOAPODS: 1.7.2
+COCOAPODS: 1.10.1

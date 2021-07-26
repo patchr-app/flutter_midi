@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:midi_io/midi_io.dart';
 
 class SourcePortPage extends StatefulWidget {
-  const SourcePortPage({this.port});
+  const SourcePortPage({required this.port});
   final MidiSourcePort port;
 
   @override
@@ -14,7 +14,7 @@ class SourcePortPage extends StatefulWidget {
 
 class SourcePortPageState extends State<SourcePortPage> {
   List<String> messages = [];
-  StreamSubscription messageSub;
+  StreamSubscription? messageSub;
 
   @override
   void initState() {
@@ -38,7 +38,7 @@ class SourcePortPageState extends State<SourcePortPage> {
 
   @override
   void dispose() {
-    messageSub.cancel();
+    messageSub?.cancel();
     widget.port.close();
     super.dispose();
   }

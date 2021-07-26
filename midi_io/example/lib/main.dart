@@ -27,7 +27,7 @@ class MidiExampleState extends State<MidiExample> {
   @override
   Widget build(BuildContext context) {
     return Provider<Midi>(
-        builder: (BuildContext context) => Midi(),
+        create: (BuildContext context) => Midi(),
         child: MaterialApp(
           home: Scaffold(
             body: tabIndex == 0 ? DestinationsTab() : SourcesTab(),

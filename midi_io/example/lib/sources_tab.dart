@@ -30,14 +30,15 @@ class SourcesTab extends StatelessWidget {
                 AsyncSnapshot<List<MidiSourcePort>> snapshot) =>
             ListView(
           children: snapshot.data
-              .map(
-                (MidiSourcePort port) => ListTile(
-                  title: Text(port.name),
-                  subtitle: Text(port.manufacturer),
-                  onTap: () => openSource(context, port),
-                ),
-              )
-              .toList(),
+                  ?.map(
+                    (MidiSourcePort port) => ListTile(
+                      title: Text(port.name ?? ''),
+                      subtitle: Text(port.manufacturer ?? ''),
+                      onTap: () => openSource(context, port),
+                    ),
+                  )
+                  .toList() ??
+              [],
         ),
       ),
     );
