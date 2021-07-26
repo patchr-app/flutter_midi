@@ -1,8 +1,11 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:midi_io/midi_io.dart';
 
 void main() {
-  const MethodChannel channel = MethodChannel('midi');
+  const MethodChannel channel = MethodChannel('midi_io');
+
+  TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
     channel.setMockMethodCallHandler((MethodCall methodCall) async {
@@ -15,6 +18,6 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    //   expect(await Midi.platformVersion, '42');
+    expect(await MidiIo.platformVersion, '42');
   });
 }
