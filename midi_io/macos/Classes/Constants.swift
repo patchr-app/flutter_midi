@@ -1,12 +1,12 @@
 //
 //  Constants.swift
-//  midi
+//  midi_io
 //
-//  Created by Michael Marner on 21/9/19.
+//  Created by Michael Marner on 25/7/21.
 //
 
 import Foundation
-import FlutterMacOS
+
 
 public class Constants {
   public static var METHOD_CHANNEL_NAME = "app.patchr/midi";
@@ -49,5 +49,3 @@ public class Constants {
   public static var CONNECTED = "connected";
   public static var DISCONNECTED = "disconnected";
 }
-
-
