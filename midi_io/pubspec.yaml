@@ -1,6 +1,6 @@
 name: midi_io
 description: A new flutter plugin project.
-version: 0.0.1
+version: 1.0.4
 homepage: https://patchr.app
 
 environment:
