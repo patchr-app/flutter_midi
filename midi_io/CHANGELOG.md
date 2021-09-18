@@ -1,3 +1,7 @@
+## 1.0.5
+
+- Move license file to fix MacOS build
+
 ## 1.0.4
 
 - Fix library name on MacOS
