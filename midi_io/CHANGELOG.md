@@ -1,3 +1,7 @@
+## 1.0.6
+
+- Update link to Git repo
+
 ## 1.0.5
 
 - Move license file to fix MacOS build

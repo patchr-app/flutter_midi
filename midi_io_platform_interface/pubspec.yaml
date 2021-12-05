@@ -1,7 +1,8 @@
 name: midi_io_platform_interface
 description: Platform interface for the Midi IO plugin
-version: 1.0.0
+version: 1.0.1
 homepage: https://patchr.app
+repository: https://github.com/patchr-app/flutter_midi/tree/main/midi_io_platform_interface
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
