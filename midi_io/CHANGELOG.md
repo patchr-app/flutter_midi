@@ -1,3 +1,7 @@
+## 1.0.7
+
+- Update Readme, no functional changes
+
 ## 1.0.6
 
 - Update link to Git repo
