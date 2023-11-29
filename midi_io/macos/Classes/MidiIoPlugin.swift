@@ -145,7 +145,7 @@ public class MidiIoPlugin: NSObject, FlutterPlugin {
   func getDestinations(call: FlutterMethodCall, result: FlutterResult) {
     var ports: Array<Dictionary<String, Any>> = [];
     
-    for (_, port) in midiAccess.outputs {
+    for (_, port) in midiAccess.outputs as MIDIPortMap<MIDIOutput>  {
       var properties: Dictionary<String, Any> = [:]
       properties[Constants.NUMBER] = port.id;
       properties[Constants.ID] = buildId(port : port);
@@ -160,7 +160,7 @@ public class MidiIoPlugin: NSObject, FlutterPlugin {
   func getSources(call: FlutterMethodCall, result: FlutterResult) {
     var ports: Array<Dictionary<String, Any>> = [];
     
-    for (_, port) in midiAccess.inputs {
+    for (_, port) in midiAccess.inputs as MIDIPortMap<MIDIInput>  {
       var properties: Dictionary<String, Any> = [:]
       properties[Constants.NUMBER] = port.id;
       properties[Constants.ID] = buildId(port: port);
