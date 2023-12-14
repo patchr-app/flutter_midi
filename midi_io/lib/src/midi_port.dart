@@ -177,11 +177,11 @@ class MidiSourcePort extends MidiPort {
 
   /// The stream of Midi messages originating from this source port.
   Stream<Uint8List> get messages {
-    return MidiPlatform.instance
+    Stream<Uint8List> stream = MidiPlatform.instance
         .midiMessages()
         .where((dynamic data) => data[Constants.port] == id)
-        .map<Uint8List?>((dynamic data) => data[Constants.data])
-        .transform(MessageSplitter());
+        .map<Uint8List>((dynamic data) => data[Constants.data] as Uint8List);
+    return stream.transform(MessageSplitter());
   }
 
   @override
