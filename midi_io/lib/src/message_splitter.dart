@@ -72,6 +72,7 @@ class MessageSplitter extends StreamTransformerBase<Uint8List, Uint8List> {
         } else {
           // if we get here we received something we don't understand,
           // and that we weren't expecting, so drop the message
+          i++;
         }
       }
     }
