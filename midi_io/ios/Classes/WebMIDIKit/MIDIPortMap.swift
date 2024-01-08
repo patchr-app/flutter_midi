@@ -69,7 +69,7 @@ public class MIDIPortMap<Value: MIDIPort> : Collection, CustomStringConvertible,
     internal final func remove(_ endpoint: MIDIEndpoint) -> Value? {
         //disconnect?
         guard let port = self[endpoint] else { assert(false); return nil }
-        assert(port.state == .connected)
+        //assert(port.state == .connected)
         self[port.id] = nil
         return port
     }
